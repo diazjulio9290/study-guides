@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPU vs GPU — Study Guide | Julio Diaz</title>
+<meta name="description" content="Study guide covering CPU vs GPU architectures, serial vs parallel processing, enterprise use cases, HPC, and AI workloads.">
+<meta property="og:title" content="CPU vs GPU — Study Guide | Julio Diaz">
+<meta property="og:description" content="Explore the fundamental differences between CPUs and GPUs, and learn why GPUs are essential for modern enterprise computing.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CPU vs GPU — Study Guide | Julio Diaz">
+<meta name="twitter:description" content="Explore the fundamental differences between CPUs and GPUs, and learn why GPUs are essential for modern enterprise computing.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0a0c10; --surface:#111318; --surface2:#181c24; --border:#1f2533;
+    --cpu:#e05c3a; --gpu:#3ae0b4; --accent:#f0c040; --text:#e8eaf0;
+    --muted:#7a8090; --cpu-bg:rgba(224,92,58,0.08); --gpu-bg:rgba(58,224,180,0.08);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; font-size:15px; line-height:1.6; padding:40px 24px 80px; }
+  .page { max-width:960px; margin:0 auto; }
+
+  /* BACK LINK */
+  .back-link { display:inline-flex; align-items:center; gap:8px; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); text-decoration:none; margin-bottom:32px; transition:color .15s; }
+  .back-link:hover { color:var(--gpu); }
+
+  /* HEADER */
+  .header { display:flex; align-items:flex-end; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:20px; margin-bottom:48px; gap:16px; flex-wrap:wrap; }
+  .kicker { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--gpu); margin-bottom:6px; }
+  h1.main { font-family:'Bebas Neue',sans-serif; font-size:clamp(40px,7vw,72px); letter-spacing:.04em; line-height:1; color:var(--text); }
+  h1.main .cpu-word { color:var(--cpu); }
+  h1.main .gpu-word { color:var(--gpu); }
+  .header-right { font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); text-align:right; line-height:1.9; }
+
+  /* SECTION LABEL */
+  .section-label { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+  .section-label::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  /* GRIDS */
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .three-col { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+  .four-col { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+  @media(max-width:680px) { .two-col,.three-col,.four-col { grid-template-columns:1fr; } }
+
+  /* CARDS */
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:20px; position:relative; overflow:hidden; }
+  .card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; }
+  .card.cpu::before { background:var(--cpu); }
+  .card.gpu::before { background:var(--gpu); }
+  .card.neutral::before { background:var(--accent); }
+  .card h3 { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:.06em; margin-bottom:12px; }
+  .card.cpu h3 { color:var(--cpu); }
+  .card.gpu h3 { color:var(--gpu); }
+  .card.neutral h3 { color:var(--accent); }
+  .card p { color:var(--muted); font-size:13.5px; line-height:1.65; }
+
+  /* COMPARE TABLE */
+  .compare-table { width:100%; border-collapse:collapse; font-size:13.5px; }
+  .compare-table thead tr { border-bottom:1px solid var(--border); }
+  .compare-table th { padding:10px 16px; text-align:left; font-family:'Bebas Neue',sans-serif; font-size:17px; letter-spacing:.06em; font-weight:400; }
+  .compare-table th.cpu-head { color:var(--cpu); }
+  .compare-table th.gpu-head { color:var(--gpu); }
+  .compare-table th:first-child { color:var(--muted); font-size:10px; letter-spacing:.16em; text-transform:uppercase; font-family:'DM Mono',monospace; }
+  .compare-table td { padding:10px 16px; vertical-align:top; border-bottom:1px solid var(--border); color:var(--muted); line-height:1.55; }
+  .compare-table td:first-child { color:var(--text); font-family:'DM Mono',monospace; font-size:11px; white-space:nowrap; }
+  .compare-table tr:last-child td { border-bottom:none; }
+  .compare-table td.cpu-cell { background:var(--cpu-bg); color:#d0cec8; }
+  .compare-table td.gpu-cell { background:var(--gpu-bg); color:#c8d0ce; }
+
+  /* ANALOGY */
+  .analogy-card { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:20px; }
+  .analogy-card h3 { font-family:'Bebas Neue',sans-serif; font-size:19px; letter-spacing:.06em; color:var(--accent); margin-bottom:6px; }
+  .analogy-card p { color:var(--muted); font-size:13px; }
+
+  /* PROCESSING VIS */
+  .processing-vis { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:20px; }
+  .vis-title { font-family:'Bebas Neue',sans-serif; font-size:17px; letter-spacing:.06em; margin-bottom:12px; }
+  .cores-display { display:flex; flex-wrap:wrap; gap:5px; margin-top:8px; }
+  .core-dot { border-radius:4px; display:flex; align-items:center; justify-content:center; font-family:'DM Mono',monospace; font-size:8px; font-weight:500; }
+  .core-dot.cpu-core { width:40px; height:40px; background:rgba(224,92,58,0.2); border:1px solid var(--cpu); color:var(--cpu); }
+  .core-dot.gpu-core { width:16px; height:16px; background:rgba(58,224,180,0.18); border:1px solid rgba(58,224,180,0.5); }
+  .core-label { font-size:11px; color:var(--muted); margin-bottom:8px; font-family:'DM Mono',monospace; }
+
+  /* FLOW NODES */
+  .flow-node { background:var(--surface2); border:1px solid var(--border); border-radius:6px; padding:10px 14px; font-size:12px; font-family:'DM Mono',monospace; white-space:nowrap; }
+  .flow-node.gpu-node { border-color:rgba(58,224,180,0.4); color:var(--gpu); }
+  .flow-node.cpu-node { border-color:rgba(224,92,58,0.4); color:var(--cpu); }
+
+  /* PILLS */
+  .pill-grid { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+  .pill { padding:5px 12px; border-radius:999px; font-size:12px; font-family:'DM Mono',monospace; border:1px solid; }
+  .pill.gpu-pill { background:var(--gpu-bg); border-color:rgba(58,224,180,0.3); color:var(--gpu); }
+  .pill.neutral-pill { background:rgba(240,192,64,0.08); border-color:rgba(240,192,64,0.3); color:var(--accent); }
+
+  /* STAT CARDS */
+  .stat-card { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:20px; text-align:center; }
+  .stat-card .stat-num { font-family:'Bebas Neue',sans-serif; font-size:38px; letter-spacing:.04em; line-height:1; margin-bottom:6px; }
+  .stat-card .stat-label { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+
+  /* TERM GRID */
+  .term-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; }
+  .term-card { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:14px 16px; }
+  .term-card .term { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); margin-bottom:5px; }
+  .term-card .definition { font-size:12.5px; color:var(--muted); line-height:1.55; }
+
+  /* TAKEAWAY */
+  .takeaway { background:linear-gradient(135deg,rgba(58,224,180,0.06),rgba(224,92,58,0.06)); border:1px solid var(--border); border-radius:8px; padding:24px 28px; }
+  .takeaway h3 { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:.06em; color:var(--text); margin-bottom:12px; }
+  .takeaway ul { list-style:none; display:flex; flex-direction:column; gap:8px; }
+  .takeaway ul li { font-size:13.5px; color:var(--muted); padding-left:18px; position:relative; }
+  .takeaway ul li::before { content:'▸'; position:absolute; left:0; color:var(--gpu); }
+  .hl { color:var(--text); font-weight:500; }
+
+  .spacer { height:40px; }
+  .spacer-sm { height:20px; }
+
+  /* GUIDE FOOTER */
+  .guide-footer { margin-top:60px; padding-top:24px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; }
+  .guide-footer-center { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+  .guide-nav-link { display:inline-flex; align-items:center; gap:8px; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; text-decoration:none; transition:color .15s, gap .2s; padding:8px 14px; border:1px solid var(--border); border-radius:6px; }
+  .guide-nav-link.back { color:var(--muted); }
+  .guide-nav-link.back:hover { color:var(--text); border-color:var(--muted); }
+  .guide-nav-link.next { color:var(--ai); border-color:rgba(74,127,255,0.3); background:rgba(74,127,255,0.05); }
+  .guide-nav-link.next:hover { border-color:rgba(74,127,255,0.6); gap:14px; }
+  .guide-nav-placeholder { width:120px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <a class="back-link" href="index.html">← Back to All Guides</a>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <div class="kicker">Enterprise Computing · Study Guide · Vol. 01</div>
+      <h1 class="main"><span class="cpu-word">CPU</span> vs <span class="gpu-word">GPU</span></h1>
+    </div>
+    <div class="header-right">
+      Processing Architecture<br>
+      Enterprise Applications<br>
+      AI &amp; HPC Workloads<br>
+      <span style="color:var(--text)">Authored by Julio Diaz</span>
+    </div>
+  </div>
+
+  <!-- 01 DEFINITIONS -->
+  <div class="section-label">01 — Core Definitions</div>
+  <div class="two-col">
+    <div class="card cpu">
+      <h3>CPU — Central Processing Unit</h3>
+      <p>The brain of the computer. Responsible for executing a <span style="color:var(--text)">wide range of complex calculations</span> using <span style="color:var(--cpu)">serial processing</span> — one instruction at a time. Built with a small number of powerful cores optimized for sequential logic.</p>
+      <div style="margin-top:14px;">
+        <div class="core-label">Typical core count: 4–64 powerful cores</div>
+        <div class="cores-display">
+          <div class="core-dot cpu-core">C1</div><div class="core-dot cpu-core">C2</div><div class="core-dot cpu-core">C3</div><div class="core-dot cpu-core">C4</div>
+        </div>
+      </div>
+    </div>
+    <div class="card gpu">
+      <h3>GPU — Graphics Processing Unit</h3>
+      <p>Hardware specifically designed for rapid calculations. Built to carry out simple operations at high speed, featuring <span style="color:var(--gpu)">thousands of lightweight cores</span> working in parallel. Originally for graphics; now essential for AI &amp; HPC.</p>
+      <div style="margin-top:14px;">
+        <div class="core-label">Typical core count: 1,000s of lightweight cores</div>
+        <div class="cores-display" style="max-height:60px;overflow:hidden;">
+          <div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- 02 PROCESSING TYPES -->
+  <div class="section-label">02 — Processing Types</div>
+  <div class="two-col">
+    <div class="processing-vis">
+      <div class="vis-title" style="color:var(--cpu)">Serial Processing (CPU)</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">One instruction at a time. Queue grows when volume is high.</p>
+      <div style="display:flex;flex-direction:column;gap:4px;">
+        <div class="flow-node cpu-node" style="width:140px">Task 1 ▶ Done</div>
+        <div class="flow-node" style="border-style:dashed;color:var(--muted);width:140px">Task 2 ⏳ Wait</div>
+        <div class="flow-node" style="border-style:dashed;color:var(--muted);width:140px">Task 3 ⏳ Wait</div>
+        <div class="flow-node" style="border-style:dashed;color:var(--muted);width:140px">Task 4 ⏳ Wait</div>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin-top:12px;font-family:'DM Mono',monospace;">→ Bottleneck at high data volume</p>
+    </div>
+    <div class="processing-vis">
+      <div class="vis-title" style="color:var(--gpu)">Parallel Processing (GPU)</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Thousands of cores each handle a portion of data simultaneously.</p>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;">
+        <div class="flow-node gpu-node" style="text-align:center;padding:8px 4px;font-size:11px;">T1 ▶</div><div class="flow-node gpu-node" style="text-align:center;padding:8px 4px;font-size:11px;">T2 ▶</div><div class="flow-node gpu-node" style="text-align:center;padding:8px 4px;font-size:11px;">T3 ▶</div><div class="flow-node gpu-node" style="text-align:center;padding:8px 4px;font-size:11px;">T4 ▶</div>
+        <div class="flow-node gpu-node" style="text-align:center;padding:8px 4px;font-size:11px;">T5 ▶</div><div class="flow-node gpu-node" style="text-align:center;padding:8px 4px;font-size:11px;">T6 ▶</div><div class="flow-node gpu-node" style="text-align:center;padding:8px 4px;font-size:11px;">T7 ▶</div><div class="flow-node gpu-node" style="text-align:center;padding:8px 4px;font-size:11px;">T8 ▶</div>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin-top:12px;font-family:'DM Mono',monospace;">→ Scales to massive data sets</p>
+    </div>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- 03 ANALOGY -->
+  <div class="section-label">03 — The Pizza Delivery Analogy</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
+    <div class="analogy-card">
+      <div style="font-size:36px;margin-bottom:10px;">🚗</div>
+      <h3>1 Driver = Serial CPU</h3>
+      <p>One driver, all orders. Gets overwhelmed fast. New orders pile up. Customers wait longer and receive cold results.</p>
+    </div>
+    <div class="analogy-card">
+      <div style="font-size:36px;margin-bottom:10px;">🚛🚛🚛</div>
+      <h3>Multi-Truck = Multi-Core CPU</h3>
+      <p>More drivers help but memory bandwidth creates a bottleneck. Complex to coordinate. Doesn't scale well beyond ~4 cores.</p>
+    </div>
+    <div class="analogy-card" style="border-color:rgba(58,224,180,0.3);">
+      <div style="font-size:36px;margin-bottom:10px;">🛵🛵🛵🛵🛵🛵</div>
+      <h3>Dozens of Scooters = GPU</h3>
+      <p>Many scooters handle small orders in parallel. Trucks handle complex catering. <span style="color:var(--gpu)">Together they satisfy all customers.</span></p>
+    </div>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- 04 COMPARISON TABLE -->
+  <div class="section-label">04 — Head-to-Head Comparison</div>
+  <div class="card neutral" style="padding:0;overflow:hidden;">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th style="width:160px;">Attribute</th>
+          <th class="cpu-head">CPU</th>
+          <th class="gpu-head">GPU</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Core Count</td><td class="cpu-cell">Few powerful cores (typically 4–64)</td><td class="gpu-cell">Thousands of lightweight cores</td></tr>
+        <tr><td>Processing Type</td><td class="cpu-cell">Serial — one task at a time</td><td class="gpu-cell">Parallel — many tasks simultaneously</td></tr>
+        <tr><td>Task Complexity</td><td class="cpu-cell">Complex, varied instructions</td><td class="gpu-cell">Simple, repetitive calculations</td></tr>
+        <tr><td>Scalability</td><td class="cpu-cell">Memory bottleneck above ~4 cores</td><td class="gpu-cell">Scales efficiently to massive data</td></tr>
+        <tr><td>Best For</td><td class="cpu-cell">OS tasks, logic, complex control flow</td><td class="gpu-cell">AI training, graphics, HPC, analytics</td></tr>
+        <tr><td>Design Origin</td><td class="cpu-cell">General-purpose computing</td><td class="gpu-cell">Graphics rendering; now general HPC</td></tr>
+        <tr><td>Replace the Other?</td><td class="cpu-cell" colspan="2" style="text-align:center;color:var(--accent);font-weight:500;">No — they are complementary. Best performance comes from using both together.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- 05 USE CASES -->
+  <div class="section-label">05 — Enterprise GPU Use Cases</div>
+  <div class="three-col">
+    <div class="card gpu">
+      <h3>AI &amp; Machine Learning</h3>
+      <p>Training and inference for NLP and recommendation systems. CPUs alone cannot provide the required compute power.</p>
+      <div class="pill-grid">
+        <span class="pill gpu-pill">NLP</span><span class="pill gpu-pill">Inference</span><span class="pill gpu-pill">Training</span><span class="pill gpu-pill">Rec. Systems</span>
+      </div>
+    </div>
+    <div class="card gpu">
+      <h3>High-Performance Computing</h3>
+      <p>Scientific workloads requiring far more power than regular servers. Distributes compute efficiently across clusters.</p>
+      <div class="pill-grid">
+        <span class="pill gpu-pill">Simulation</span><span class="pill gpu-pill">Modeling</span><span class="pill gpu-pill">Research</span>
+      </div>
+    </div>
+    <div class="card gpu">
+      <h3>Visualization &amp; Graphics</h3>
+      <p>Graphics rendering, virtual desktops, animation, and CAD designs that depend on GPU visual processing power.</p>
+      <div class="pill-grid">
+        <span class="pill gpu-pill">Rendering</span><span class="pill gpu-pill">VDI</span><span class="pill gpu-pill">Animation</span><span class="pill gpu-pill">CAD</span>
+      </div>
+    </div>
+  </div>
+  <div class="spacer-sm"></div>
+  <div class="three-col">
+    <div class="card neutral">
+      <h3>Data Center</h3>
+      <p>Exceptional parallel processing for AI model training and inference at scale in centralized infrastructure.</p>
+      <div class="pill-grid"><span class="pill neutral-pill">AI Models</span><span class="pill neutral-pill">Scale-out</span></div>
+    </div>
+    <div class="card neutral">
+      <h3>Edge Computing</h3>
+      <p>Compute outside centralized data centers for real-time tasks requiring immediate response.</p>
+      <div class="pill-grid"><span class="pill neutral-pill">Predictive Maint.</span><span class="pill neutral-pill">Real-time AI</span></div>
+    </div>
+    <div class="card neutral">
+      <h3>Agentic AI (2030+)</h3>
+      <p>AI agents use data to enhance problem solving. By 2030, 25% of all software will incorporate agentic workflows.</p>
+      <div class="pill-grid"><span class="pill neutral-pill">Autonomous</span><span class="pill neutral-pill">Workflow AI</span></div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- 06 KEY NUMBERS -->
+  <div class="section-label">06 — Key Numbers to Know</div>
+  <div class="four-col">
+    <div class="stat-card"><div class="stat-num" style="color:var(--gpu)">1000s</div><div class="stat-label">GPU Cores<br>vs ~4–64 CPU</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--accent)">25%</div><div class="stat-label">All software with<br>agentic AI by 2030</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--accent)">33%</div><div class="stat-label">Enterprise software<br>w/ agentic workflows</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--cpu)">~4</div><div class="stat-label">CPU cores before<br>memory bottleneck</div></div>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- 07 VOCABULARY -->
+  <div class="section-label">07 — Key Vocabulary</div>
+  <div class="term-grid">
+    <div class="term-card"><div class="term">Serial Processing</div><div class="definition">Executing one instruction at a time. CPU's native mode. Slow for large data volumes.</div></div>
+    <div class="term-card"><div class="term">Parallel Processing</div><div class="definition">Multiple instructions executed simultaneously across many cores.</div></div>
+    <div class="term-card"><div class="term">Core</div><div class="definition">The execution engine inside a CPU or GPU that performs mathematical calculations.</div></div>
+    <div class="term-card"><div class="term">Memory Bandwidth</div><div class="definition">The bottleneck limiting multi-core CPU scaling beyond ~4 cores.</div></div>
+    <div class="term-card"><div class="term">HPC</div><div class="definition">High-Performance Computing — far exceeds regular server performance via distributed GPU compute.</div></div>
+    <div class="term-card"><div class="term">GPU Acceleration</div><div class="definition">Using GPU's parallel cores to speed up specific workloads alongside the CPU.</div></div>
+    <div class="term-card"><div class="term">Inference</div><div class="definition">Running a trained AI model to produce predictions — a primary GPU enterprise workload.</div></div>
+    <div class="term-card"><div class="term">Agentic AI</div><div class="definition">AI agents that autonomously use data to solve problems and accelerate work.</div></div>
+    <div class="term-card"><div class="term">Enterprise</div><div class="definition">Organizations/businesses (not consumer-level). Distinguishes from personal use.</div></div>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- 08 TAKEAWAYS -->
+  <div class="section-label">08 — Summary &amp; Takeaways</div>
+  <div class="takeaway">
+    <h3>What You Need to Know</h3>
+    <ul>
+      <li>The <span class="hl">CPU</span> excels at serial processing of complex, varied instructions — it is the brain of the computer.</li>
+      <li>The <span class="hl">GPU</span> is purpose-built for simple, repetitive math at high speed using thousands of parallel cores.</li>
+      <li><span class="hl">GPUs do not replace CPUs</span> — the greatest performance gains come when both work together.</li>
+      <li>Multi-core CPU parallelism hits a <span class="hl">memory bandwidth bottleneck</span> beyond ~4 cores and is complex to program.</li>
+      <li>Enterprise GPU workloads span <span class="hl">AI/ML, HPC, visualization, edge computing, and data centers</span>.</li>
+      <li>By 2030, <span class="hl">25% of all software</span> and 33% of enterprise software will incorporate agentic AI workflows.</li>
+      <li>Future data centers will combine <span class="hl">CPU + GPU</span> with both on-premises and cloud architectures.</li>
+    </ul>
+  </div>
+
+  <!-- GUIDE FOOTER -->
+  <div class="guide-footer">
+    <a class="guide-nav-link back" href="index.html">← All Guides</a>
+    <div class="guide-footer-center">Vol. 01 of 02 · Enterprise Computing Study Series</div>
+    <a class="guide-nav-link next" href="ai-enterprise-study-charts.html">Vol. 02: Enterprise AI →</a>
+  </div>
+  <div class="spacer"></div>
+
+</div>
+</body>
+</html>

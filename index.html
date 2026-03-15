@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Study Guides — Julio Diaz</title>
+<meta name="description" content="A complete study guide series by Julio Diaz covering CPU vs GPU processing architectures and Enterprise AI pipelines for modern enterprise computing.">
+<meta property="og:title" content="Study Guides — Julio Diaz">
+<meta property="og:description" content="CPU vs GPU & Enterprise AI study guides covering processing architectures, GPU acceleration, and AI pipelines.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Study Guides — Julio Diaz">
+<meta name="twitter:description" content="CPU vs GPU & Enterprise AI study guides covering processing architectures, GPU acceleration, and AI pipelines.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10; --surface: #111318; --surface2: #181c24; --border: #1f2533;
+    --text: #e8eaf0; --muted: #7a8090;
+    --cpu: #e05c3a; --gpu: #3ae0b4; --ai: #4a7fff; --accent: #f0c040;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; min-height:100vh; display:flex; flex-direction:column; }
+
+  /* HERO */
+  .hero {
+    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:100px 32px 60px; text-align:center; position:relative; overflow:hidden;
+  }
+  .hero::before {
+    content:''; position:absolute; inset:0;
+    background-image: linear-gradient(rgba(58,224,180,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(58,224,180,0.04) 1px, transparent 1px);
+    background-size:40px 40px; pointer-events:none;
+  }
+  .hero::after {
+    content:''; position:absolute; top:-100px; left:50%; transform:translateX(-50%);
+    width:600px; height:400px;
+    background:radial-gradient(ellipse, rgba(58,224,180,0.07) 0%, transparent 70%);
+    pointer-events:none;
+  }
+  .hero-eyebrow {
+    font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.24em; text-transform:uppercase;
+    color:var(--gpu); margin-bottom:20px; position:relative; z-index:1;
+  }
+  .hero h1 {
+    font-family:'Bebas Neue',sans-serif; font-size:clamp(56px,10vw,110px);
+    letter-spacing:.04em; line-height:.95; color:var(--text); position:relative; z-index:1; margin-bottom:10px;
+  }
+  .hero h1 .accent-gpu { color:var(--gpu); }
+  .hero h1 .accent-cpu { color:var(--cpu); }
+  .hero h1 .accent-ai  { color:var(--ai);  }
+  .hero-sub {
+    font-size:15px; color:var(--muted); max-width:480px; line-height:1.7;
+    margin-top:18px; position:relative; z-index:1;
+  }
+  .author-badge {
+    display:inline-flex; align-items:center; gap:8px; margin-top:28px;
+    padding:8px 18px; border:1px solid var(--border); border-radius:999px;
+    font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.1em;
+    color:var(--muted); position:relative; z-index:1;
+  }
+  .author-badge .dot { width:6px; height:6px; border-radius:50%; background:var(--gpu); }
+
+  /* DIVIDER */
+  .divider { display:flex; align-items:center; gap:16px; padding:0 40px; margin-bottom:48px; }
+  .divider-line { flex:1; height:1px; background:var(--border); }
+  .divider-label { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); }
+
+  /* CARDS */
+  .cards-section { padding:0 40px 80px; max-width:1100px; margin:0 auto; width:100%; }
+  .cards-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  @media(max-width:700px) {
+    .cards-grid { grid-template-columns:1fr; }
+    .hero { padding:60px 24px 48px; }
+    .cards-section { padding:0 20px 60px; }
+  }
+
+  .study-card {
+    background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    padding:32px; text-decoration:none; display:flex; flex-direction:column;
+    position:relative; overflow:hidden;
+    transition:transform .2s, border-color .2s, box-shadow .2s;
+  }
+  .study-card:hover { transform:translateY(-4px); }
+  .card-1:hover { border-color:rgba(224,92,58,0.4); box-shadow:0 20px 60px rgba(224,92,58,0.1); }
+  .card-2:hover { border-color:rgba(74,127,255,0.4); box-shadow:0 20px 60px rgba(74,127,255,0.1); }
+  .study-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+  .card-1::before { background:linear-gradient(90deg, var(--cpu), var(--gpu)); }
+  .card-2::before { background:linear-gradient(90deg, var(--ai), var(--gpu)); }
+  .study-card::after {
+    content:''; position:absolute; bottom:-60px; right:-60px;
+    width:200px; height:200px; border-radius:50%; pointer-events:none; opacity:.06;
+  }
+  .card-1::after { background:var(--cpu); }
+  .card-2::after { background:var(--ai); }
+
+  .card-vol { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-bottom:14px; }
+  .card-title { font-family:'Bebas Neue',sans-serif; font-size:38px; letter-spacing:.04em; line-height:1; margin-bottom:6px; }
+  .card-1 .card-title { color:var(--cpu); }
+  .card-2 .card-title { color:var(--ai); }
+  .card-subtitle { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:20px; }
+  .card-desc { font-size:13.5px; color:var(--muted); line-height:1.65; margin-bottom:24px; flex:1; }
+
+  .card-topics { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:28px; }
+  .topic-pill { padding:4px 10px; border-radius:999px; font-family:'DM Mono',monospace; font-size:11px; border:1px solid; }
+  .card-1 .topic-pill { background:rgba(224,92,58,0.08); border-color:rgba(224,92,58,0.3); color:var(--cpu); }
+  .card-2 .topic-pill { background:rgba(74,127,255,0.08); border-color:rgba(74,127,255,0.3); color:var(--ai); }
+
+  .card-sections { margin-top:20px; padding-top:20px; border-top:1px solid var(--border); }
+  .card-sections-label { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; }
+  .section-list { display:grid; grid-template-columns:1fr 1fr; gap:4px 12px; }
+  .section-item { font-size:12px; color:var(--muted); padding:2px 0 2px 12px; position:relative; }
+  .section-item::before { content:'›'; position:absolute; left:0; font-size:13px; }
+  .card-1 .section-item::before { color:var(--cpu); }
+  .card-2 .section-item::before { color:var(--ai); }
+
+  .card-cta { display:flex; align-items:center; gap:10px; font-family:'DM Mono',monospace; font-size:12px; letter-spacing:.1em; text-transform:uppercase; transition:gap .2s; margin-top:24px; }
+  .card-1 .card-cta { color:var(--cpu); }
+  .card-2 .card-cta { color:var(--ai); }
+  .study-card:hover .card-cta { gap:16px; }
+  .card-cta-line { flex:1; height:1px; opacity:.3; }
+  .card-1 .card-cta-line { background:var(--cpu); }
+  .card-2 .card-cta-line { background:var(--ai); }
+
+  /* FOOTER */
+  .footer { border-top:1px solid var(--border); padding:20px 40px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+  .footer-left { font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); letter-spacing:.06em; }
+  .footer-left span { color:var(--gpu); }
+  .footer-right { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+</style>
+</head>
+<body>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">Enterprise Computing · Study Collection</div>
+    <h1>
+      <span class="accent-cpu">CPU</span><span style="color:var(--muted)"> · </span><span class="accent-gpu">GPU</span><br>
+      <span class="accent-ai">&amp; Enterprise</span> AI
+    </h1>
+    <p class="hero-sub">A complete study guide series covering processing architectures, GPU acceleration, and AI pipelines for modern enterprise computing.</p>
+    <div class="author-badge">
+      <span class="dot"></span>
+      Authored by Julio Diaz
+    </div>
+  </div>
+
+  <!-- DIVIDER -->
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-label">Choose a Guide</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- CARDS -->
+  <div class="cards-section">
+    <div class="cards-grid">
+
+      <!-- Vol. 1 -->
+      <a class="study-card card-1" href="cpu-gpu-study-charts.html">
+        <div class="card-vol">Vol. 01 · Processing Architecture</div>
+        <div class="card-title">CPU vs GPU</div>
+        <div class="card-subtitle">Serial vs Parallel · Enterprise Computing</div>
+        <div class="card-desc">Explore the fundamental differences between CPUs and GPUs, understand serial and parallel processing, and learn why GPUs are essential for modern enterprise workloads like AI and HPC.</div>
+        <div class="card-topics">
+          <span class="topic-pill">Serial Processing</span>
+          <span class="topic-pill">Parallel Processing</span>
+          <span class="topic-pill">HPC</span>
+          <span class="topic-pill">AI Workloads</span>
+          <span class="topic-pill">Edge Computing</span>
+        </div>
+        <div class="card-sections">
+          <div class="card-sections-label">8 Sections</div>
+          <div class="section-list">
+            <div class="section-item">Core Definitions</div>
+            <div class="section-item">Processing Types</div>
+            <div class="section-item">Pizza Analogy</div>
+            <div class="section-item">Head-to-Head Table</div>
+            <div class="section-item">Enterprise Use Cases</div>
+            <div class="section-item">Key Numbers</div>
+            <div class="section-item">Key Vocabulary</div>
+            <div class="section-item">Summary</div>
+          </div>
+        </div>
+        <div class="card-cta">
+          Open Study Guide
+          <div class="card-cta-line"></div>
+          →
+        </div>
+      </a>
+
+      <!-- Vol. 2 -->
+      <a class="study-card card-2" href="ai-enterprise-study-charts.html">
+        <div class="card-vol">Vol. 02 · AI Pipelines</div>
+        <div class="card-title">Enterprise AI</div>
+        <div class="card-subtitle">Training · Inference · GPU Acceleration</div>
+        <div class="card-desc">Understand what AI is, how enterprises benefit from it, and how GPU-accelerated pipelines power modern AI workflows — from model training and inference to agentic AI deployments.</div>
+        <div class="card-topics">
+          <span class="topic-pill">Machine Learning</span>
+          <span class="topic-pill">Deep Learning</span>
+          <span class="topic-pill">Inference</span>
+          <span class="topic-pill">Agentic AI</span>
+          <span class="topic-pill">LLMs</span>
+        </div>
+        <div class="card-sections">
+          <div class="card-sections-label">10 Sections</div>
+          <div class="section-list">
+            <div class="section-item">Learning Objectives</div>
+            <div class="section-item">What is AI?</div>
+            <div class="section-item">AI Evolution Timeline</div>
+            <div class="section-item">Enterprise Benefits</div>
+            <div class="section-item">Training vs. Inference</div>
+            <div class="section-item">7-Step Workflow</div>
+            <div class="section-item">GPU Bottlenecks</div>
+            <div class="section-item">Deployment Challenges</div>
+            <div class="section-item">Use Cases</div>
+            <div class="section-item">Summary</div>
+          </div>
+        </div>
+        <div class="card-cta">
+          Open Study Guide
+          <div class="card-cta-line"></div>
+          →
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-left">© 2025 <span>Julio Diaz</span> · Enterprise Computing Study Series</div>
+    <div class="footer-right">2 Guides · English</div>
+  </div>
+
+</body>
+</html>

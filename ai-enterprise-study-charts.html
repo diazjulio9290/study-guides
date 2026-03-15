@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enterprise AI Pipelines — Study Guide | Julio Diaz</title>
+<meta name="description" content="Study guide on Enterprise AI pipelines covering model training, inference, GPU acceleration, agentic AI, LLMs, and 7-step AI workflows.">
+<meta property="og:title" content="Enterprise AI Pipelines — Study Guide | Julio Diaz">
+<meta property="og:description" content="Understand how GPU-accelerated pipelines power modern AI workflows — from model training and inference to agentic AI deployments.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Enterprise AI Pipelines — Study Guide | Julio Diaz">
+<meta name="twitter:description" content="Understand how GPU-accelerated pipelines power modern AI workflows — from model training and inference to agentic AI deployments.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#f4f1eb; --surface:#faf8f4; --surface2:#edeae2; --border:#d8d3c8; --border2:#c8c2b5;
+    --ink:#1a1814; --muted:#7a7060; --ai:#1a3a8f; --ai-light:#dde6ff;
+    --train:#8f1a2a; --train-light:#ffdde0; --gpu:#1a6e3a; --gpu-light:#ddfaeb;
+    --accent:#c47a1a; --accent-light:#fff3d6;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--ink); font-family:'IBM Plex Sans',sans-serif; font-size:14px; line-height:1.65; padding:40px 28px 80px; }
+  .page { max-width:980px; margin:0 auto; }
+
+  /* BACK LINK */
+  .back-link { display:inline-flex; align-items:center; gap:8px; font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); text-decoration:none; margin-bottom:32px; transition:color .15s; }
+  .back-link:hover { color:var(--ai); }
+
+  /* HEADER */
+  .header { display:grid; grid-template-columns:1fr auto; align-items:end; border-bottom:3px solid var(--ink); padding-bottom:18px; margin-bottom:52px; gap:20px; }
+  .kicker { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.22em; text-transform:uppercase; color:var(--ai); margin-bottom:8px; }
+  h1.main { font-family:'Syne',sans-serif; font-size:clamp(38px,6vw,68px); font-weight:800; line-height:.95; letter-spacing:-.02em; color:var(--ink); }
+  h1.main em { font-style:normal; color:var(--ai); }
+  .header-meta { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.1em; color:var(--muted); text-align:right; line-height:2; }
+
+  /* SECTION LABEL */
+  .sec { display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+  .sec-num { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.2em; color:var(--muted); background:var(--surface2); border:1px solid var(--border); border-radius:3px; padding:2px 7px; }
+  .sec-title { font-family:'Syne',sans-serif; font-size:11px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); }
+  .sec::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  /* CARDS */
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:20px 22px; }
+  .card h3 { font-family:'Syne',sans-serif; font-size:15px; font-weight:700; margin-bottom:8px; }
+  .card p { color:var(--muted); font-size:13px; line-height:1.6; }
+  .card-ai { border-left:3px solid var(--ai); background:var(--ai-light); }
+  .card-ai h3 { color:var(--ai); }
+  .card-train { border-left:3px solid var(--train); background:var(--train-light); }
+  .card-train h3 { color:var(--train); }
+  .card-gpu { border-left:3px solid var(--gpu); background:var(--gpu-light); }
+  .card-gpu h3 { color:var(--gpu); }
+  .card-acc { border-left:3px solid var(--accent); background:var(--accent-light); }
+  .card-acc h3 { color:var(--accent); }
+
+  /* GRIDS */
+  .g2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .g3 { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  .g4 { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+  @media(max-width:660px) { .g2,.g3,.g4 { grid-template-columns:1fr; } }
+  .spacer { height:44px; }
+  .spacer-sm { height:18px; }
+
+  /* TIMELINE */
+  .timeline { padding-left:28px; display:flex; flex-direction:column; }
+  .tl-item { position:relative; padding:0 0 22px 22px; border-left:2px solid var(--border2); }
+  .tl-item:last-child { border-left:2px solid transparent; padding-bottom:0; }
+  .tl-dot { position:absolute; left:-7px; top:4px; width:12px; height:12px; border-radius:50%; border:2px solid var(--surface); box-shadow:0 0 0 2px var(--border2); }
+  .tl-year { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.1em; color:var(--muted); margin-bottom:3px; }
+  .tl-label { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; color:var(--ink); margin-bottom:4px; }
+  .tl-desc { font-size:12.5px; color:var(--muted); }
+
+  /* PIPELINE */
+  .pipeline { display:flex; align-items:stretch; overflow-x:auto; padding:4px 0; }
+  .pipe-step { flex:1; min-width:100px; background:var(--surface); border:1px solid var(--border); border-right:none; padding:14px 12px; position:relative; }
+  .pipe-step:last-child { border-right:1px solid var(--border); border-radius:0 6px 6px 0; }
+  .pipe-step:first-child { border-radius:6px 0 0 6px; }
+  .pipe-step::after { content:'▶'; position:absolute; right:-10px; top:50%; transform:translateY(-50%); font-size:12px; color:var(--muted); z-index:2; background:var(--bg); padding:2px; }
+  .pipe-step:last-child::after { display:none; }
+  .pipe-num { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:.12em; color:var(--muted); margin-bottom:5px; }
+  .pipe-name { font-family:'Syne',sans-serif; font-size:12px; font-weight:700; color:var(--ink); margin-bottom:4px; line-height:1.2; }
+  .pipe-desc { font-size:11px; color:var(--muted); line-height:1.4; }
+  .pipe-step.gpu-step { background:var(--gpu-light); border-color:var(--gpu); }
+  .pipe-step.gpu-step .pipe-name { color:var(--gpu); }
+
+  /* STATS */
+  .stat-row { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+  @media(max-width:660px) { .stat-row { grid-template-columns:1fr 1fr; } }
+  .stat-block { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:20px 16px; text-align:center; }
+  .stat-block .num { font-family:'Syne',sans-serif; font-size:36px; font-weight:800; line-height:1; letter-spacing:-.02em; margin-bottom:6px; }
+  .stat-block .lbl { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); line-height:1.5; }
+
+  /* COMPARE BOX */
+  .compare-box { display:grid; grid-template-columns:1fr 56px 1fr; border:1px solid var(--border); border-radius:6px; overflow:hidden; }
+  .compare-side { padding:20px; }
+  .compare-side h4 { font-family:'Syne',sans-serif; font-size:15px; font-weight:700; margin-bottom:12px; }
+  .train-side { background:var(--train-light); }
+  .train-side h4 { color:var(--train); }
+  .infer-side { background:var(--gpu-light); }
+  .infer-side h4 { color:var(--gpu); }
+  .compare-vs { display:flex; align-items:center; justify-content:center; background:var(--surface2); border-left:1px solid var(--border); border-right:1px solid var(--border); font-family:'Syne',sans-serif; font-size:13px; font-weight:800; color:var(--muted); }
+  .compare-side ul { list-style:none; display:flex; flex-direction:column; gap:6px; }
+  .compare-side ul li { font-size:12.5px; color:var(--muted); padding-left:14px; position:relative; }
+  .compare-side ul li::before { content:'–'; position:absolute; left:0; color:var(--border2); }
+
+  /* CHALLENGE */
+  .challenge-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  @media(max-width:660px) { .challenge-grid { grid-template-columns:1fr; } }
+  .challenge-item { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:16px 18px; }
+  .challenge-item .ch-icon { font-size:22px; margin-bottom:8px; }
+  .challenge-item .ch-title { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; color:var(--train); margin-bottom:5px; }
+  .challenge-item p { font-size:12px; color:var(--muted); }
+
+  /* PILLS */
+  .pill { display:inline-block; padding:4px 11px; border-radius:3px; font-family:'IBM Plex Mono',monospace; font-size:11px; border:1px solid; margin:3px 3px 0 0; }
+  .pill-ai { background:var(--ai-light); color:var(--ai); border-color:rgba(26,58,143,.2); }
+  .pill-gpu { background:var(--gpu-light); color:var(--gpu); border-color:rgba(26,110,58,.2); }
+  .pill-acc { background:var(--accent-light); color:var(--accent); border-color:rgba(196,122,26,.2); }
+
+  /* BENEFITS */
+  .benefit-row { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  @media(max-width:660px) { .benefit-row { grid-template-columns:1fr; } }
+  .benefit-card { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:16px 18px; display:flex; gap:12px; align-items:flex-start; }
+  .benefit-pct { font-family:'Syne',sans-serif; font-size:28px; font-weight:800; line-height:1; flex-shrink:0; }
+  .benefit-desc { font-size:12px; color:var(--muted); line-height:1.5; }
+  .benefit-desc strong { color:var(--ink); font-weight:500; display:block; margin-bottom:2px; }
+
+  /* VOCAB TABLE */
+  .vocab-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .vocab-table thead tr { border-bottom:2px solid var(--ink); }
+  .vocab-table th { padding:8px 14px; text-align:left; font-family:'Syne',sans-serif; font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+  .vocab-table td { padding:9px 14px; border-bottom:1px solid var(--border); vertical-align:top; }
+  .vocab-table tr:last-child td { border-bottom:none; }
+
+  /* GUIDE FOOTER */
+  .guide-footer { margin-top:60px; padding-top:24px; border-top:2px solid var(--ink); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; }
+  .guide-footer-center { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+  .guide-nav-link { display:inline-flex; align-items:center; gap:8px; font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; text-decoration:none; transition:color .15s, gap .2s; padding:8px 14px; border:1px solid var(--border2); border-radius:4px; color:var(--muted); background:var(--surface); }
+  .guide-nav-link:hover { color:var(--ink); border-color:var(--ink); }
+  .guide-nav-link.prev:hover { gap:14px; }
+  .guide-nav-link.next { color:var(--ai); border-color:rgba(26,58,143,.25); background:var(--ai-light); }
+  .guide-nav-link.next:hover { border-color:var(--ai); gap:14px; }
+  .vocab-table td:first-child { font-family:'IBM Plex Mono',monospace; font-size:11.5px; font-weight:500; color:var(--ai); white-space:nowrap; width:220px; }
+  .vocab-table td:last-child { color:var(--muted); }
+
+  /* GOALS */
+  .goals { background:var(--ai-light); border:1px solid rgba(26,58,143,.15); border-radius:6px; padding:20px 24px; }
+  .goals h3 { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--ai); margin-bottom:12px; }
+  .goals ul { list-style:none; display:flex; flex-direction:column; gap:7px; }
+  .goals ul li { font-size:13px; color:var(--muted); padding-left:18px; position:relative; }
+  .goals ul li::before { content:'✓'; position:absolute; left:0; color:var(--ai); font-size:11px; top:1px; }
+
+  /* TAKEAWAY */
+  .takeaway { background:var(--ink); border-radius:6px; padding:28px 32px; color:#e8e4da; }
+  .takeaway h3 { font-family:'Syne',sans-serif; font-size:20px; font-weight:800; letter-spacing:-.01em; margin-bottom:14px; color:#fff; }
+  .takeaway ul { list-style:none; display:grid; grid-template-columns:1fr 1fr; gap:8px 24px; }
+  @media(max-width:600px) { .takeaway ul { grid-template-columns:1fr; } }
+  .takeaway ul li { font-size:13px; color:#a8a49a; padding-left:16px; position:relative; line-height:1.55; }
+  .takeaway ul li::before { content:'▸'; position:absolute; left:0; color:#4aad72; }
+  .takeaway ul li strong { color:#e8e4da; font-weight:500; }
+
+  .uc-card { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:16px 18px; }
+  .uc-card h3 { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; margin-bottom:6px; color:var(--ai); }
+  .uc-card p { font-size:12px; color:var(--muted); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <a class="back-link" href="index.html">← Back to All Guides</a>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <div class="kicker">Enterprise Computing · Study Guide · Vol. 02</div>
+      <h1 class="main">Enterprise<br><em>AI</em> Pipelines</h1>
+    </div>
+    <div class="header-meta">
+      AI Overview<br>
+      GPU-Accelerated Workflows<br>
+      Training vs. Inference<br>
+      Market Solutions<br>
+      <span style="color:var(--ink)">Authored by Julio Diaz</span>
+    </div>
+  </div>
+
+  <!-- 00 OBJECTIVES -->
+  <div class="sec"><span class="sec-num">00</span><span class="sec-title">Learning Objectives</span></div>
+  <div class="goals">
+    <h3>By the end of this module, you will be able to:</h3>
+    <ul>
+      <li>Describe artificial intelligence at a high level and identify active spaces in the enterprise</li>
+      <li>List the ways enterprises can benefit from AI adoption</li>
+      <li>Distinguish between model training and inference processes</li>
+      <li>Explain how GPUs address bottlenecks within a typical AI pipeline</li>
+    </ul>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- 01 WHAT IS AI -->
+  <div class="sec"><span class="sec-num">01</span><span class="sec-title">What is Artificial Intelligence?</span></div>
+  <div class="g2">
+    <div class="card card-ai">
+      <h3>Definition</h3>
+      <p>A broad field of study focused on enabling computers to perform tasks that normally require <strong style="color:var(--ai)">human-level intelligence</strong>. Dates back to the 1950s with games like tic-tac-toe and checkers.</p>
+    </div>
+    <div class="card">
+      <h3 style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:8px;">Key AI Application Areas</h3>
+      <p>Chatbots &amp; virtual assistants — Content generation — Translation — Image recognition — Recommendation systems — Spam filters — Navigation — Fraud detection</p>
+      <div style="margin-top:12px;">
+        <span class="pill pill-ai">Chatbots</span>
+        <span class="pill pill-ai">NLP</span>
+        <span class="pill pill-ai">Image Recognition</span>
+        <span class="pill pill-ai">Recommendation</span>
+        <span class="pill pill-ai">Fraud Detection</span>
+        <span class="pill pill-ai">Translation</span>
+      </div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- 02 EVOLUTION -->
+  <div class="sec"><span class="sec-num">02</span><span class="sec-title">Evolution of AI &amp; Machine Learning</span></div>
+  <div class="card" style="padding:28px 32px;">
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-dot" style="background:var(--muted);"></div>
+        <div class="tl-year">1950s</div>
+        <div class="tl-label">Early AI</div>
+        <div class="tl-desc">Early applications in games (tic-tac-toe, checkers). Limited practical use for decades. Inspired science fiction.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot" style="background:var(--accent);"></div>
+        <div class="tl-year">1980s</div>
+        <div class="tl-label">Machine Learning Emerges</div>
+        <div class="tl-desc">Statistical techniques to create models from observed data. Human-defined feature extractors. Examples: linear regression, bag-of-words, spam filters.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot" style="background:var(--train);"></div>
+        <div class="tl-year">2010s</div>
+        <div class="tl-label">Deep Learning Breakthrough</div>
+        <div class="tl-desc">Advances in hardware, large datasets, and improved training algorithms. Automated feature extraction via deep neural networks (DNNs). GPU-enabled large-scale training.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot" style="background:var(--ai);"></div>
+        <div class="tl-year">Now</div>
+        <div class="tl-label">Generative AI &amp; LLMs</div>
+        <div class="tl-desc">Large language models with surprisingly human-like intelligence. Transforming industries. Agentic AI — autonomous agents forming a $100B+ software category.</div>
+      </div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- 03 BENEFITS -->
+  <div class="sec"><span class="sec-num">03</span><span class="sec-title">Enterprise AI Benefits &amp; Key Numbers</span></div>
+  <div class="benefit-row">
+    <div class="benefit-card">
+      <div class="benefit-pct" style="color:var(--train);">30–50%</div>
+      <div class="benefit-desc"><strong>Financial Services</strong>Cost savings through automation and productivity gains</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-pct" style="color:var(--ai);">30%</div>
+      <div class="benefit-desc"><strong>Healthcare</strong>Improvement in customer/patient satisfaction via AI</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-pct" style="color:var(--gpu);">15%</div>
+      <div class="benefit-desc"><strong>HR / Financial Firms</strong>Reduction in HR administrative time</div>
+    </div>
+  </div>
+  <div class="spacer-sm"></div>
+  <div class="stat-row">
+    <div class="stat-block"><div class="num" style="color:var(--ai);">25%</div><div class="lbl">All software with<br>agentic AI by 2030</div></div>
+    <div class="stat-block"><div class="num" style="color:var(--ai);">33%</div><div class="lbl">Enterprise software<br>w/ agentic workflows</div></div>
+    <div class="stat-block"><div class="num" style="color:var(--accent);">$78B</div><div class="lbl">Agentic AI market<br>size by 2030</div></div>
+    <div class="stat-block"><div class="num" style="color:var(--train);">$100B+</div><div class="lbl">AI agents as<br>enterprise software</div></div>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- 04 TRAINING VS INFERENCE -->
+  <div class="sec"><span class="sec-num">04</span><span class="sec-title">Training vs. Inference</span></div>
+  <div class="compare-box">
+    <div class="compare-side train-side">
+      <h4>Model Training</h4>
+      <ul>
+        <li>Most computationally intensive phase</li>
+        <li>Expose model to vast labeled datasets over time</li>
+        <li>Automated feature extraction via DNNs</li>
+        <li>Iterative validation &amp; testing</li>
+        <li>Time-consuming and expensive on CPUs</li>
+        <li>GPU acceleration is critical</li>
+        <li>Example: Showing 1000s of cat images</li>
+      </ul>
+    </div>
+    <div class="compare-vs">VS</div>
+    <div class="compare-side infer-side">
+      <h4>Inference</h4>
+      <ul>
+        <li>Applying a trained model to new unseen data</li>
+        <li>Generating output / predictions</li>
+        <li>Less compute-intensive than training overall</li>
+        <li>Must be fast, at scale, often real-time</li>
+        <li>Delays are unacceptable (e.g. navigation)</li>
+        <li>GPU acceleration also essential here</li>
+        <li>Example: Recognizing a new cat photo</li>
+      </ul>
+    </div>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- 05 PIPELINE -->
+  <div class="sec"><span class="sec-num">05</span><span class="sec-title">7-Step AI Project Workflow</span></div>
+  <div class="pipeline">
+    <div class="pipe-step"><div class="pipe-num">STEP 01</div><div class="pipe-name">Data Acquisition</div><div class="pipe-desc">Collect relevant data from reputable sources</div></div>
+    <div class="pipe-step"><div class="pipe-num">STEP 02</div><div class="pipe-name">Data Curation</div><div class="pipe-desc">Filter &amp; refine for quality and relevance</div></div>
+    <div class="pipe-step gpu-step"><div class="pipe-num">STEP 03</div><div class="pipe-name">Pre-Training</div><div class="pipe-desc">Large-scale foundational training (GPU-heavy)</div></div>
+    <div class="pipe-step gpu-step"><div class="pipe-num">STEP 04</div><div class="pipe-name">Model Customization</div><div class="pipe-desc">Tailor to business needs, domains, values</div></div>
+    <div class="pipe-step"><div class="pipe-num">STEP 05</div><div class="pipe-name">Info Retrieval</div><div class="pipe-desc">Extract relevant info from curated data</div></div>
+    <div class="pipe-step gpu-step"><div class="pipe-num">STEP 06</div><div class="pipe-name">Inference</div><div class="pipe-desc">Generate insights at high speed &amp; accuracy</div></div>
+    <div class="pipe-step"><div class="pipe-num">STEP 07</div><div class="pipe-name">Guardrails</div><div class="pipe-desc">Safety measures for relevance &amp; appropriateness</div></div>
+  </div>
+  <p style="font-size:11px;color:var(--muted);margin-top:8px;font-family:'IBM Plex Mono',monospace;">
+    <span style="background:var(--gpu-light);color:var(--gpu);border:1px solid rgba(26,110,58,.2);padding:1px 6px;border-radius:3px;">■ GPU-Accelerated Steps</span>
+  </p>
+  <div class="spacer"></div>
+
+  <!-- 06 GPU ROLE -->
+  <div class="sec"><span class="sec-num">06</span><span class="sec-title">How GPUs Address AI Pipeline Bottlenecks</span></div>
+  <div class="g3">
+    <div class="card card-gpu">
+      <h3>The Problem: CPU Bottlenecks</h3>
+      <p>CPU-based workflows hit performance walls when handling large-scale AI workloads. Not designed for the massive parallel data processing required by deep learning.</p>
+    </div>
+    <div class="card card-gpu">
+      <h3>GPU Training Acceleration</h3>
+      <p>Thousands of parallel cores handle matrix math simultaneously. Reduces training time from weeks to hours. Enables iterative experimentation at scale.</p>
+    </div>
+    <div class="card card-gpu">
+      <h3>GPU Inference at Scale</h3>
+      <p>Real-time predictions require immediate response. GPUs process inference requests rapidly and at massive scale — essential for production AI deployments.</p>
+    </div>
+  </div>
+  <div class="spacer-sm"></div>
+  <div class="card card-acc">
+    <h3>GPU Deployment Models</h3>
+    <p style="margin-bottom:10px;">Enterprises can access GPU acceleration through multiple deployment options:</p>
+    <span class="pill pill-acc">☁ Cloud-Based GPUs (Proprietary AI Platforms)</span>
+    <span class="pill pill-acc">🏢 On-Premises (Org-owned &amp; managed)</span>
+    <span class="pill pill-acc">🏗 Co-Location Facilities</span>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- 07 CHALLENGES -->
+  <div class="sec"><span class="sec-num">07</span><span class="sec-title">AI Deployment Challenges</span></div>
+  <div class="challenge-grid">
+    <div class="challenge-item">
+      <div class="ch-icon">⚙️</div>
+      <div class="ch-title">Complexity</div>
+      <p>Multiple interconnected components in a data pipeline. Maintaining stable platforms for both development and deployment is challenging.</p>
+    </div>
+    <div class="challenge-item">
+      <div class="ch-icon">🏭</div>
+      <div class="ch-title">Production Readiness</div>
+      <p>Organizations must consider cost, manageability, security, and maintenance when moving AI solutions into production environments.</p>
+    </div>
+    <div class="challenge-item">
+      <div class="ch-icon">🌐</div>
+      <div class="ch-title">Infrastructure Diversity</div>
+      <p>Running AI workflows across data centers, edge, and cloud is not guaranteed. Siloed infrastructure increases costs and operational challenges.</p>
+    </div>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- 08 USE CASES -->
+  <div class="sec"><span class="sec-num">08</span><span class="sec-title">Enterprise AI Use Cases by Industry</span></div>
+  <div class="g4">
+    <div class="uc-card"><h3>Customer Service</h3><p>Chatbots &amp; virtual assistants reduce wait times and route inquiries efficiently.</p></div>
+    <div class="uc-card"><h3>Product Development</h3><p>Digital prototyping and design tools accelerate concept-to-production pipelines.</p></div>
+    <div class="uc-card"><h3>Banking &amp; Finance</h3><p>Pattern detection in personal, commercial, and trading activities for fraud prevention.</p></div>
+    <div class="uc-card"><h3>Urban &amp; Public Safety</h3><p>Video analytics and simulations to create safer cities and better environments.</p></div>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- 09 VOCABULARY -->
+  <div class="sec"><span class="sec-num">09</span><span class="sec-title">Key Vocabulary</span></div>
+  <div class="card" style="padding:0;overflow:hidden;">
+    <table class="vocab-table">
+      <thead><tr><th>Term</th><th>Definition</th></tr></thead>
+      <tbody>
+        <tr><td>Machine Learning</td><td>A subset of AI using statistical techniques to build models from observed data; emerged in the 1980s.</td></tr>
+        <tr><td>Deep Neural Network (DNN)</td><td>Multi-layered networks that automate feature extraction; backbone of modern AI breakthroughs in the 2010s.</td></tr>
+        <tr><td>Generative AI</td><td>AI systems capable of generating new content (text, images, code) with near-human quality.</td></tr>
+        <tr><td>Large Language Model (LLM)</td><td>Massive DNN trained on text data; powers chatbots, translation, and content generation.</td></tr>
+        <tr><td>Model Training</td><td>Exposing a model to large datasets iteratively to learn patterns. The most GPU-intensive AI phase.</td></tr>
+        <tr><td>Inference</td><td>Using a trained model to generate predictions on new, unseen data. Must be fast and scalable.</td></tr>
+        <tr><td>Agentic AI</td><td>Autonomous AI agents that complete complex tasks independently, forming a $100B+ market by 2030.</td></tr>
+        <tr><td>GPU Acceleration</td><td>Using GPU parallel cores to overcome CPU bottlenecks in AI training and inference workflows.</td></tr>
+        <tr><td>Feature Extractor</td><td>A component that identifies meaningful patterns in data. Originally human-defined; now automated by DNNs.</td></tr>
+        <tr><td>HPC</td><td>High-Performance Computing — massively exceeds regular server performance via distributed GPU compute.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- 10 TAKEAWAYS -->
+  <div class="sec"><span class="sec-num">10</span><span class="sec-title">Summary &amp; Takeaways</span></div>
+  <div class="takeaway">
+    <h3>What You Need to Know</h3>
+    <ul>
+      <li>AI is a broad field enabling computers to perform <strong>human-level tasks</strong>; ML and deep learning are key subsets.</li>
+      <li>Deep learning breakthroughs in the <strong>2010s</strong> were enabled by GPUs, large datasets, and better algorithms.</li>
+      <li><strong>Generative AI and LLMs</strong> now power chatbots, content generation, translation, and more.</li>
+      <li><strong>Agentic AI</strong> is the next wave — autonomous agents that transform enterprises into digital workforces.</li>
+      <li>AI delivers measurable ROI: <strong>30–50% cost savings</strong> in finance, <strong>30% satisfaction</strong> in healthcare.</li>
+      <li><strong>Model training</strong> is the most compute-intensive phase; GPUs reduce training time dramatically.</li>
+      <li><strong>Inference</strong> must be real-time and at scale — GPU acceleration is equally essential here.</li>
+      <li>A typical AI workflow has <strong>7 steps</strong>: Acquisition → Curation → Pre-training → Customization → Retrieval → Inference → Guardrails.</li>
+      <li>Key deployment challenges: <strong>complexity, production readiness, infrastructure diversity</strong>.</li>
+      <li>GPUs can be deployed <strong>on-premises, in the cloud, or co-location facilities</strong> to support AI workloads.</li>
+    </ul>
+  </div>
+
+  <!-- GUIDE FOOTER -->
+  <div class="guide-footer">
+    <a class="guide-nav-link prev" href="cpu-gpu-study-charts.html">← Vol. 01: CPU vs GPU</a>
+    <div class="guide-footer-center">Vol. 02 of 02 · Enterprise Computing Study Series</div>
+    <a class="guide-nav-link next" href="index.html">All Guides →</a>
+  </div>
+  <div class="spacer"></div>
+
+</div>
+</body>
+</html>
