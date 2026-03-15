@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enterprise AI Pipelines — Study Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#f4f1eb; --surface:#faf8f4; --surface2:#edeae2; --border:#d8d3c8; --border2:#c8c2b5;
+    --ink:#1a1814; --muted:#7a7060; --ai:#1a3a8f; --ai-light:#dde6ff;
+    --train:#8f1a2a; --train-light:#ffdde0; --gpu:#1a6e3a; --gpu-light:#ddfaeb;
+    --accent:#c47a1a; --accent-light:#fff3d6;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--ink); font-family:'IBM Plex Sans',sans-serif; font-size:14px; line-height:1.65; padding:0 28px 80px; }
+  .page { max-width:980px; margin:0 auto; }
+
+  /* LANGUAGE TOGGLE */
+  .lang-bar { position:sticky; top:0; z-index:200; display:flex; align-items:center; gap:6px; padding:14px 0 16px; background:var(--bg); border-bottom:2px solid var(--ink); margin-bottom:40px; }
+  .lang-bar-label { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); margin-right:4px; }
+  .lang-btn { padding:6px 20px; border-radius:3px; border:1px solid var(--border2); background:transparent; cursor:pointer; font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); transition:all .15s; }
+  .lang-btn.active { background:var(--ai); color:#fff; border-color:var(--ai); }
+  .lang-btn:hover:not(.active) { border-color:var(--ai); color:var(--ai); }
+
+  /* LANGUAGE VISIBILITY */
+  .es { display:none; }
+  body.es .en { display:none; }
+  body.es .es { display:block; }
+  body.es span.es, body.es li.es, body.es td.es { display:inline; }
+  body.es span.en, body.es li.en, body.es td.en { display:none; }
+  span.en, span.es { display:inline; }
+
+  /* HEADER */
+  .header { display:grid; grid-template-columns:1fr auto; align-items:end; border-bottom:3px solid var(--ink); padding-bottom:18px; margin-bottom:52px; gap:20px; }
+  .kicker { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.22em; text-transform:uppercase; color:var(--ai); margin-bottom:8px; }
+  h1.main { font-family:'Syne',sans-serif; font-size:clamp(38px,6vw,68px); font-weight:800; line-height:.95; letter-spacing:-.02em; color:var(--ink); }
+  h1.main em { font-style:normal; color:var(--ai); }
+  .header-meta { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.1em; color:var(--muted); text-align:right; line-height:2; }
+
+  /* SECTION LABEL */
+  .sec { display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+  .sec-num { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.2em; color:var(--muted); background:var(--surface2); border:1px solid var(--border); border-radius:3px; padding:2px 7px; }
+  .sec-title { font-family:'Syne',sans-serif; font-size:11px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); }
+  .sec::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  /* CARDS */
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:20px 22px; }
+  .card h3 { font-family:'Syne',sans-serif; font-size:15px; font-weight:700; margin-bottom:8px; }
+  .card p { color:var(--muted); font-size:13px; line-height:1.6; }
+  .card-ai { border-left:3px solid var(--ai); background:var(--ai-light); }
+  .card-ai h3 { color:var(--ai); }
+  .card-train { border-left:3px solid var(--train); background:var(--train-light); }
+  .card-train h3 { color:var(--train); }
+  .card-gpu { border-left:3px solid var(--gpu); background:var(--gpu-light); }
+  .card-gpu h3 { color:var(--gpu); }
+  .card-acc { border-left:3px solid var(--accent); background:var(--accent-light); }
+  .card-acc h3 { color:var(--accent); }
+
+  /* GRIDS */
+  .g2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .g3 { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  .g4 { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+  @media(max-width:660px) { .g2,.g3,.g4 { grid-template-columns:1fr; } }
+
+  .spacer { height:44px; }
+  .spacer-sm { height:18px; }
+
+  /* TIMELINE */
+  .timeline { padding-left:28px; display:flex; flex-direction:column; }
+  .tl-item { position:relative; padding:0 0 22px 22px; border-left:2px solid var(--border2); }
+  .tl-item:last-child { border-left:2px solid transparent; padding-bottom:0; }
+  .tl-dot { position:absolute; left:-7px; top:4px; width:12px; height:12px; border-radius:50%; border:2px solid var(--surface); box-shadow:0 0 0 2px var(--border2); }
+  .tl-year { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.1em; color:var(--muted); margin-bottom:3px; }
+  .tl-label { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; color:var(--ink); margin-bottom:4px; }
+  .tl-desc { font-size:12.5px; color:var(--muted); }
+
+  /* PIPELINE */
+  .pipeline { display:flex; align-items:stretch; overflow-x:auto; padding:4px 0; }
+  .pipe-step { flex:1; min-width:100px; background:var(--surface); border:1px solid var(--border); border-right:none; padding:14px 12px; position:relative; }
+  .pipe-step:last-child { border-right:1px solid var(--border); border-radius:0 6px 6px 0; }
+  .pipe-step:first-child { border-radius:6px 0 0 6px; }
+  .pipe-step::after { content:'▶'; position:absolute; right:-10px; top:50%; transform:translateY(-50%); font-size:12px; color:var(--muted); z-index:2; background:var(--bg); padding:2px; }
+  .pipe-step:last-child::after { display:none; }
+  .pipe-num { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:.12em; color:var(--muted); margin-bottom:5px; }
+  .pipe-name { font-family:'Syne',sans-serif; font-size:12px; font-weight:700; color:var(--ink); margin-bottom:4px; line-height:1.2; }
+  .pipe-desc { font-size:11px; color:var(--muted); line-height:1.4; }
+  .pipe-step.gpu-step { background:var(--gpu-light); border-color:var(--gpu); }
+  .pipe-step.gpu-step .pipe-name { color:var(--gpu); }
+
+  /* STATS */
+  .stat-row { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+  @media(max-width:660px) { .stat-row { grid-template-columns:1fr 1fr; } }
+  .stat-block { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:20px 16px; text-align:center; }
+  .stat-block .num { font-family:'Syne',sans-serif; font-size:36px; font-weight:800; line-height:1; letter-spacing:-.02em; margin-bottom:6px; }
+  .stat-block .lbl { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); line-height:1.5; }
+
+  /* COMPARE BOX */
+  .compare-box { display:grid; grid-template-columns:1fr 56px 1fr; border:1px solid var(--border); border-radius:6px; overflow:hidden; }
+  .compare-side { padding:20px; }
+  .compare-side h4 { font-family:'Syne',sans-serif; font-size:15px; font-weight:700; margin-bottom:12px; }
+  .train-side { background:var(--train-light); }
+  .train-side h4 { color:var(--train); }
+  .infer-side { background:var(--gpu-light); }
+  .infer-side h4 { color:var(--gpu); }
+  .compare-vs { display:flex; align-items:center; justify-content:center; background:var(--surface2); border-left:1px solid var(--border); border-right:1px solid var(--border); font-family:'Syne',sans-serif; font-size:13px; font-weight:800; color:var(--muted); }
+  .compare-side ul { list-style:none; display:flex; flex-direction:column; gap:6px; }
+  .compare-side ul li { font-size:12.5px; color:var(--muted); padding-left:14px; position:relative; }
+  .compare-side ul li::before { content:'–'; position:absolute; left:0; color:var(--border2); }
+
+  /* CHALLENGE */
+  .challenge-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  @media(max-width:660px) { .challenge-grid { grid-template-columns:1fr; } }
+  .challenge-item { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:16px 18px; }
+  .challenge-item .ch-icon { font-size:22px; margin-bottom:8px; }
+  .challenge-item .ch-title { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; color:var(--train); margin-bottom:5px; }
+  .challenge-item p { font-size:12px; color:var(--muted); }
+
+  /* PILLS */
+  .pill { display:inline-block; padding:4px 11px; border-radius:3px; font-family:'IBM Plex Mono',monospace; font-size:11px; border:1px solid; margin:3px 3px 0 0; }
+  .pill-ai { background:var(--ai-light); color:var(--ai); border-color:rgba(26,58,143,.2); }
+  .pill-gpu { background:var(--gpu-light); color:var(--gpu); border-color:rgba(26,110,58,.2); }
+  .pill-acc { background:var(--accent-light); color:var(--accent); border-color:rgba(196,122,26,.2); }
+
+  /* BENEFITS */
+  .benefit-row { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  @media(max-width:660px) { .benefit-row { grid-template-columns:1fr; } }
+  .benefit-card { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:16px 18px; display:flex; gap:12px; align-items:flex-start; }
+  .benefit-pct { font-family:'Syne',sans-serif; font-size:28px; font-weight:800; line-height:1; flex-shrink:0; }
+  .benefit-desc { font-size:12px; color:var(--muted); line-height:1.5; }
+  .benefit-desc strong { color:var(--ink); font-weight:500; display:block; margin-bottom:2px; }
+
+  /* VOCAB TABLE */
+  .vocab-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .vocab-table thead tr { border-bottom:2px solid var(--ink); }
+  .vocab-table th { padding:8px 14px; text-align:left; font-family:'Syne',sans-serif; font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+  .vocab-table td { padding:9px 14px; border-bottom:1px solid var(--border); vertical-align:top; }
+  .vocab-table tr:last-child td { border-bottom:none; }
+  .vocab-table td:first-child { font-family:'IBM Plex Mono',monospace; font-size:11.5px; font-weight:500; color:var(--ai); white-space:nowrap; width:220px; }
+  .vocab-table td:last-child { color:var(--muted); }
+
+  /* GOALS */
+  .goals { background:var(--ai-light); border:1px solid rgba(26,58,143,.15); border-radius:6px; padding:20px 24px; }
+  .goals h3 { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--ai); margin-bottom:12px; }
+  .goals ul { list-style:none; display:flex; flex-direction:column; gap:7px; }
+  .goals ul li { font-size:13px; color:var(--muted); padding-left:18px; position:relative; }
+  .goals ul li::before { content:'✓'; position:absolute; left:0; color:var(--ai); font-size:11px; top:1px; }
+
+  /* TAKEAWAY */
+  .takeaway { background:var(--ink); border-radius:6px; padding:28px 32px; color:#e8e4da; }
+  .takeaway h3 { font-family:'Syne',sans-serif; font-size:20px; font-weight:800; letter-spacing:-.01em; margin-bottom:14px; color:#fff; }
+  .takeaway ul { list-style:none; display:grid; grid-template-columns:1fr 1fr; gap:8px 24px; }
+  @media(max-width:600px) { .takeaway ul { grid-template-columns:1fr; } }
+  .takeaway ul li { font-size:13px; color:#a8a49a; padding-left:16px; position:relative; line-height:1.55; }
+  .takeaway ul li::before { content:'▸'; position:absolute; left:0; color:#4aad72; }
+  .takeaway ul li strong { color:#e8e4da; font-weight:500; }
+
+  /* USE CASES */
+  .uc-card { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:16px 18px; }
+  .uc-card h3 { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; margin-bottom:6px; color:var(--ai); }
+  .uc-card p { font-size:12px; color:var(--muted); }
+</style>
+</head>
+<body class="en">
+<div class="page">
+
+  <!-- LANGUAGE TOGGLE -->
+  <div class="lang-bar">
+    <span class="lang-bar-label">Language:</span>
+    <button class="lang-btn active" data-lang="en" onclick="setLang('en')">English</button>
+    <button class="lang-btn" data-lang="es" onclick="setLang('es')">Español</button>
+  </div>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <div class="kicker">
+        <span class="en">Enterprise Computing · Study Guide Vol. 2</span>
+        <span class="es">Computación Empresarial · Guía de Estudio Vol. 2</span>
+      </div>
+      <h1 class="main">
+        <span class="en">Enterprise<br><em>AI</em> Pipelines</span>
+        <span class="es">Pipelines de<br><em>IA</em> Empresarial</span>
+      </h1>
+    </div>
+    <div class="header-meta">
+      <span class="en">AI Overview<br>GPU-Accelerated Workflows<br>Training vs. Inference<br>Market Solutions<br><span style="color:var(--ink)">Authored by Julio Diaz</span></span>
+      <span class="es">Descripción General de IA<br>Flujos Acelerados por GPU<br>Entrenamiento vs. Inferencia<br>Soluciones de Mercado<br><span style="color:var(--ink)">Autor: Julio Diaz</span></span>
+    </div>
+  </div>
+
+  <!-- 00 OBJECTIVES -->
+  <div class="sec"><span class="sec-num">00</span><span class="sec-title"><span class="en">Learning Objectives</span><span class="es">Objetivos de Aprendizaje</span></span></div>
+  <div class="goals">
+    <h3><span class="en">By the end of this module, you will be able to:</span><span class="es">Al finalizar este módulo, podrás:</span></h3>
+    <ul>
+      <li><span class="en">Describe artificial intelligence at a high level and identify active spaces in the enterprise</span><span class="es">Describir la inteligencia artificial a alto nivel e identificar espacios activos en la empresa</span></li>
+      <li><span class="en">List the ways enterprises can benefit from AI adoption</span><span class="es">Enumerar las formas en que las empresas pueden beneficiarse de la adopción de IA</span></li>
+      <li><span class="en">Distinguish between model training and inference processes</span><span class="es">Distinguir entre los procesos de entrenamiento de modelos e inferencia</span></li>
+      <li><span class="en">Explain how GPUs address bottlenecks within a typical AI pipeline</span><span class="es">Explicar cómo las GPU abordan los cuellos de botella en un pipeline de IA típico</span></li>
+    </ul>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- 01 WHAT IS AI -->
+  <div class="sec"><span class="sec-num">01</span><span class="sec-title"><span class="en">What is Artificial Intelligence?</span><span class="es">¿Qué es la Inteligencia Artificial?</span></span></div>
+  <div class="g2">
+    <div class="card card-ai">
+      <h3><span class="en">Definition</span><span class="es">Definición</span></h3>
+      <div class="en"><p>A broad field of study focused on enabling computers to perform tasks that normally require <strong style="color:var(--ai)">human-level intelligence</strong>. Dates back to the 1950s with games like tic-tac-toe and checkers.</p></div>
+      <div class="es"><p>Un amplio campo de estudio enfocado en capacitar a las computadoras para realizar tareas que normalmente requieren <strong style="color:var(--ai)">inteligencia humana</strong>. Se remonta a la década de 1950 con juegos como el tres en raya y las damas.</p></div>
+    </div>
+    <div class="card">
+      <h3 style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:8px;"><span class="en">Key AI Application Areas</span><span class="es">Áreas Clave de Aplicación</span></h3>
+      <div class="en"><p>Chatbots &amp; virtual assistants — Content generation — Translation — Image recognition — Recommendation systems — Spam filters — Navigation — Fraud detection</p></div>
+      <div class="es"><p>Chatbots y asistentes virtuales — Generación de contenido — Traducción — Reconocimiento de imágenes — Sistemas de recomendación — Filtros de spam — Navegación — Detección de fraude</p></div>
+      <div style="margin-top:12px;">
+        <span class="pill pill-ai">Chatbots</span>
+        <span class="pill pill-ai"><span class="en">NLP</span><span class="es">PLN</span></span>
+        <span class="pill pill-ai"><span class="en">Image Recognition</span><span class="es">Reconoc. de Imágenes</span></span>
+        <span class="pill pill-ai"><span class="en">Recommendation</span><span class="es">Recomendación</span></span>
+        <span class="pill pill-ai"><span class="en">Fraud Detection</span><span class="es">Detección de Fraude</span></span>
+        <span class="pill pill-ai"><span class="en">Translation</span><span class="es">Traducción</span></span>
+      </div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- 02 EVOLUTION -->
+  <div class="sec"><span class="sec-num">02</span><span class="sec-title"><span class="en">Evolution of AI &amp; Machine Learning</span><span class="es">Evolución de la IA y el Aprendizaje Automático</span></span></div>
+  <div class="card" style="padding:28px 32px;">
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-dot" style="background:var(--muted);"></div>
+        <div class="tl-year">1950s</div>
+        <div class="tl-label"><span class="en">Early AI</span><span class="es">IA Temprana</span></div>
+        <div class="tl-desc"><span class="en">Early applications in games (tic-tac-toe, checkers). Limited practical use for decades. Inspired science fiction.</span><span class="es">Primeras aplicaciones en juegos (tres en raya, damas). Uso práctico limitado durante décadas. Inspiró la ciencia ficción.</span></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot" style="background:var(--accent);"></div>
+        <div class="tl-year">1980s</div>
+        <div class="tl-label"><span class="en">Machine Learning Emerges</span><span class="es">Surge el Aprendizaje Automático</span></div>
+        <div class="tl-desc"><span class="en">Statistical techniques to create models from observed data. Human-defined feature extractors. Examples: linear regression, bag-of-words, spam filters.</span><span class="es">Técnicas estadísticas para construir modelos a partir de datos observados. Extractores de características definidos por humanos. Ejemplos: regresión lineal, bolsa de palabras, filtros de spam.</span></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot" style="background:var(--train);"></div>
+        <div class="tl-year">2010s</div>
+        <div class="tl-label"><span class="en">Deep Learning Breakthrough</span><span class="es">Avance del Aprendizaje Profundo</span></div>
+        <div class="tl-desc"><span class="en">Advances in hardware, large datasets, and improved training algorithms. Automated feature extraction via deep neural networks (DNNs). GPU-enabled large-scale training.</span><span class="es">Avances en hardware, grandes conjuntos de datos y mejores algoritmos. Extracción automática de características mediante DNN. Entrenamiento a gran escala habilitado por GPU.</span></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot" style="background:var(--ai);"></div>
+        <div class="tl-year"><span class="en">Now</span><span class="es">Hoy</span></div>
+        <div class="tl-label"><span class="en">Generative AI &amp; LLMs</span><span class="es">IA Generativa y LLMs</span></div>
+        <div class="tl-desc"><span class="en">Large language models with surprisingly human-like intelligence. Transforming industries. Agentic AI — autonomous agents forming a $100B+ software category.</span><span class="es">Modelos de lenguaje grandes con inteligencia sorprendentemente humana. Transformando industrias. IA agéntica — agentes autónomos que forman una categoría de software de más de $100B.</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- 03 BENEFITS -->
+  <div class="sec"><span class="sec-num">03</span><span class="sec-title"><span class="en">Enterprise AI Benefits &amp; Key Numbers</span><span class="es">Beneficios de la IA Empresarial y Números Clave</span></span></div>
+  <div class="benefit-row">
+    <div class="benefit-card">
+      <div class="benefit-pct" style="color:var(--train);">30–50%</div>
+      <div class="benefit-desc"><strong><span class="en">Financial Services</span><span class="es">Servicios Financieros</span></strong><span class="en">Cost savings through automation and productivity gains</span><span class="es">Ahorro de costos mediante automatización y ganancias de productividad</span></div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-pct" style="color:var(--ai);">30%</div>
+      <div class="benefit-desc"><strong><span class="en">Healthcare</span><span class="es">Salud</span></strong><span class="en">Improvement in customer/patient satisfaction via AI</span><span class="es">Mejora en la satisfacción de clientes/pacientes mediante IA</span></div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-pct" style="color:var(--gpu);">15%</div>
+      <div class="benefit-desc"><strong><span class="en">HR / Financial Firms</span><span class="es">RR.HH. / Finanzas</span></strong><span class="en">Reduction in HR administrative time</span><span class="es">Reducción del tiempo administrativo de RR.HH.</span></div>
+    </div>
+  </div>
+  <div class="spacer-sm"></div>
+  <div class="stat-row">
+    <div class="stat-block">
+      <div class="num" style="color:var(--ai);">25%</div>
+      <div class="lbl"><span class="en">All software with<br>agentic AI by 2030</span><span class="es">Todo el software con<br>IA agéntica para 2030</span></div>
+    </div>
+    <div class="stat-block">
+      <div class="num" style="color:var(--ai);">33%</div>
+      <div class="lbl"><span class="en">Enterprise software<br>w/ agentic workflows</span><span class="es">Software empresarial<br>con flujos agénticos</span></div>
+    </div>
+    <div class="stat-block">
+      <div class="num" style="color:var(--accent);">$78B</div>
+      <div class="lbl"><span class="en">Agentic AI market<br>size by 2030</span><span class="es">Tamaño del mercado<br>de IA agéntica en 2030</span></div>
+    </div>
+    <div class="stat-block">
+      <div class="num" style="color:var(--train);">$100B+</div>
+      <div class="lbl"><span class="en">AI agents as<br>enterprise software</span><span class="es">Agentes de IA como<br>software empresarial</span></div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- 04 TRAINING VS INFERENCE -->
+  <div class="sec"><span class="sec-num">04</span><span class="sec-title"><span class="en">Training vs. Inference</span><span class="es">Entrenamiento vs. Inferencia</span></span></div>
+  <div class="compare-box">
+    <div class="compare-side train-side">
+      <h4><span class="en">Model Training</span><span class="es">Entrenamiento de Modelos</span></h4>
+      <ul>
+        <li><span class="en">Most computationally intensive phase</span><span class="es">Fase más intensiva en cómputo</span></li>
+        <li><span class="en">Expose model to vast labeled datasets over time</span><span class="es">Exponer el modelo a grandes conjuntos de datos etiquetados</span></li>
+        <li><span class="en">Automated feature extraction via DNNs</span><span class="es">Extracción automática de características mediante DNN</span></li>
+        <li><span class="en">Iterative validation &amp; testing</span><span class="es">Validación y pruebas iterativas</span></li>
+        <li><span class="en">Time-consuming and expensive on CPUs</span><span class="es">Lento y costoso con CPU</span></li>
+        <li><span class="en">GPU acceleration is critical</span><span class="es">La aceleración por GPU es crítica</span></li>
+        <li><span class="en">Example: Showing 1000s of cat images</span><span class="es">Ejemplo: Mostrar miles de imágenes de gatos</span></li>
+      </ul>
+    </div>
+    <div class="compare-vs">VS</div>
+    <div class="compare-side infer-side">
+      <h4><span class="en">Inference</span><span class="es">Inferencia</span></h4>
+      <ul>
+        <li><span class="en">Applying a trained model to new unseen data</span><span class="es">Aplicar un modelo entrenado a nuevos datos no vistos</span></li>
+        <li><span class="en">Generating output / predictions</span><span class="es">Generación de salida / predicciones</span></li>
+        <li><span class="en">Less compute-intensive than training overall</span><span class="es">Menos intensiva en cómputo que el entrenamiento</span></li>
+        <li><span class="en">Must be fast, at scale, often real-time</span><span class="es">Debe ser rápida, a escala, a menudo en tiempo real</span></li>
+        <li><span class="en">Delays are unacceptable (e.g. navigation)</span><span class="es">Los retrasos son inaceptables (p. ej. navegación)</span></li>
+        <li><span class="en">GPU acceleration also essential here</span><span class="es">La aceleración por GPU también es esencial aquí</span></li>
+        <li><span class="en">Example: Recognizing a new cat photo</span><span class="es">Ejemplo: Reconocer una nueva foto de gato</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- 05 PIPELINE -->
+  <div class="sec"><span class="sec-num">05</span><span class="sec-title"><span class="en">7-Step AI Project Workflow</span><span class="es">Flujo de Trabajo de IA en 7 Pasos</span></span></div>
+  <div class="pipeline">
+    <div class="pipe-step">
+      <div class="pipe-num">STEP 01</div>
+      <div class="pipe-name"><span class="en">Data Acquisition</span><span class="es">Adquisición de Datos</span></div>
+      <div class="pipe-desc"><span class="en">Collect relevant data from reputable sources</span><span class="es">Recopilar datos relevantes de fuentes confiables</span></div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">STEP 02</div>
+      <div class="pipe-name"><span class="en">Data Curation</span><span class="es">Curación de Datos</span></div>
+      <div class="pipe-desc"><span class="en">Filter &amp; refine for quality and relevance</span><span class="es">Filtrar y refinar para calidad y relevancia</span></div>
+    </div>
+    <div class="pipe-step gpu-step">
+      <div class="pipe-num">STEP 03</div>
+      <div class="pipe-name"><span class="en">Pre-Training</span><span class="es">Pre-Entrenamiento</span></div>
+      <div class="pipe-desc"><span class="en">Large-scale foundational training (GPU-heavy)</span><span class="es">Entrenamiento fundacional a gran escala (intensivo en GPU)</span></div>
+    </div>
+    <div class="pipe-step gpu-step">
+      <div class="pipe-num">STEP 04</div>
+      <div class="pipe-name"><span class="en">Model Customization</span><span class="es">Personalización del Modelo</span></div>
+      <div class="pipe-desc"><span class="en">Tailor to business needs, domains, values</span><span class="es">Adaptar a necesidades empresariales, dominios, valores</span></div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">STEP 05</div>
+      <div class="pipe-name"><span class="en">Info Retrieval</span><span class="es">Recuperación de Info</span></div>
+      <div class="pipe-desc"><span class="en">Extract relevant info from curated data</span><span class="es">Extraer información relevante de los datos curados</span></div>
+    </div>
+    <div class="pipe-step gpu-step">
+      <div class="pipe-num">STEP 06</div>
+      <div class="pipe-name"><span class="en">Inference</span><span class="es">Inferencia</span></div>
+      <div class="pipe-desc"><span class="en">Generate insights at high speed &amp; accuracy</span><span class="es">Generar insights a alta velocidad y precisión</span></div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">STEP 07</div>
+      <div class="pipe-name"><span class="en">Guardrails</span><span class="es">Barreras de Seguridad</span></div>
+      <div class="pipe-desc"><span class="en">Safety measures for relevance &amp; appropriateness</span><span class="es">Medidas de seguridad para relevancia y adecuación</span></div>
+    </div>
+  </div>
+  <p style="font-size:11px;color:var(--muted);margin-top:8px;font-family:'IBM Plex Mono',monospace;">
+    <span style="background:var(--gpu-light);color:var(--gpu);border:1px solid rgba(26,110,58,.2);padding:1px 6px;border-radius:3px;"><span class="en">■ GPU-Accelerated Steps</span><span class="es">■ Pasos Acelerados por GPU</span></span>
+  </p>
+  <div class="spacer"></div>
+
+  <!-- 06 GPU ROLE -->
+  <div class="sec"><span class="sec-num">06</span><span class="sec-title"><span class="en">How GPUs Address AI Pipeline Bottlenecks</span><span class="es">Cómo las GPU Abordan los Cuellos de Botella</span></span></div>
+  <div class="g3">
+    <div class="card card-gpu">
+      <h3><span class="en">The Problem: CPU Bottlenecks</span><span class="es">El Problema: Cuellos de Botella de CPU</span></h3>
+      <div class="en"><p>CPU-based workflows hit performance walls when handling large-scale AI workloads. Not designed for the massive parallel data processing required by deep learning.</p></div>
+      <div class="es"><p>Los flujos basados en CPU chocan con paredes de rendimiento al manejar cargas de IA a gran escala. No están diseñadas para el procesamiento paralelo masivo que requiere el aprendizaje profundo.</p></div>
+    </div>
+    <div class="card card-gpu">
+      <h3><span class="en">GPU Training Acceleration</span><span class="es">Aceleración del Entrenamiento</span></h3>
+      <div class="en"><p>Thousands of parallel cores handle matrix math simultaneously. Reduces training time from weeks to hours. Enables iterative experimentation at scale.</p></div>
+      <div class="es"><p>Miles de núcleos paralelos manejan operaciones matriciales simultáneamente. Reduce el tiempo de entrenamiento de semanas a horas. Permite la experimentación iterativa a escala.</p></div>
+    </div>
+    <div class="card card-gpu">
+      <h3><span class="en">GPU Inference at Scale</span><span class="es">Inferencia GPU a Escala</span></h3>
+      <div class="en"><p>Real-time predictions require immediate response. GPUs process inference requests rapidly and at massive scale — essential for production AI deployments.</p></div>
+      <div class="es"><p>Las predicciones en tiempo real requieren respuesta inmediata. Las GPU procesan solicitudes de inferencia rápidamente y a escala masiva — esencial para implementaciones de IA en producción.</p></div>
+    </div>
+  </div>
+  <div class="spacer-sm"></div>
+  <div class="card card-acc">
+    <h3><span class="en">GPU Deployment Models</span><span class="es">Modelos de Implementación de GPU</span></h3>
+    <div class="en"><p style="margin-bottom:10px;">Enterprises can access GPU acceleration through multiple deployment options:</p></div>
+    <div class="es"><p style="margin-bottom:10px;">Las empresas pueden acceder a la aceleración GPU mediante múltiples opciones de implementación:</p></div>
+    <div>
+      <span class="pill pill-acc"><span class="en">☁ Cloud-Based GPUs</span><span class="es">☁ GPUs en la Nube</span></span>
+      <span class="pill pill-acc"><span class="en">🏢 On-Premises</span><span class="es">🏢 Local (On-Premises)</span></span>
+      <span class="pill pill-acc"><span class="en">🏗 Co-Location Facilities</span><span class="es">🏗 Instalaciones de Co-Ubicación</span></span>
+    </div>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- 07 CHALLENGES -->
+  <div class="sec"><span class="sec-num">07</span><span class="sec-title"><span class="en">AI Deployment Challenges</span><span class="es">Desafíos de Implementación de IA</span></span></div>
+  <div class="challenge-grid">
+    <div class="challenge-item">
+      <div class="ch-icon">⚙️</div>
+      <div class="ch-title"><span class="en">Complexity</span><span class="es">Complejidad</span></div>
+      <div class="en"><p>Multiple interconnected components in a data pipeline. Maintaining stable platforms for both development and deployment is challenging.</p></div>
+      <div class="es"><p>Múltiples componentes interconectados en un pipeline de datos. Mantener plataformas estables para desarrollo e implementación es un desafío.</p></div>
+    </div>
+    <div class="challenge-item">
+      <div class="ch-icon">🏭</div>
+      <div class="ch-title"><span class="en">Production Readiness</span><span class="es">Preparación para Producción</span></div>
+      <div class="en"><p>Organizations must consider cost, manageability, security, and maintenance when moving AI solutions into production environments.</p></div>
+      <div class="es"><p>Las organizaciones deben considerar costo, manejabilidad, seguridad y mantenimiento al llevar soluciones de IA a producción.</p></div>
+    </div>
+    <div class="challenge-item">
+      <div class="ch-icon">🌐</div>
+      <div class="ch-title"><span class="en">Infrastructure Diversity</span><span class="es">Diversidad de Infraestructura</span></div>
+      <div class="en"><p>Running AI workflows across data centers, edge, and cloud is not guaranteed. Siloed infrastructure increases costs and operational challenges.</p></div>
+      <div class="es"><p>Ejecutar flujos de IA en centros de datos, borde y nube no está garantizado. La infraestructura en silos aumenta costos y desafíos operativos.</p></div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- 08 USE CASES -->
+  <div class="sec"><span class="sec-num">08</span><span class="sec-title"><span class="en">Enterprise AI Use Cases by Industry</span><span class="es">Casos de Uso de IA por Industria</span></span></div>
+  <div class="g4">
+    <div class="uc-card">
+      <h3><span class="en">Customer Service</span><span class="es">Atención al Cliente</span></h3>
+      <div class="en"><p style="font-size:12px;">Chatbots &amp; virtual assistants reduce wait times and route inquiries efficiently.</p></div>
+      <div class="es"><p style="font-size:12px;">Chatbots y asistentes virtuales reducen tiempos de espera y dirigen consultas eficientemente.</p></div>
+    </div>
+    <div class="uc-card">
+      <h3><span class="en">Product Development</span><span class="es">Desarrollo de Productos</span></h3>
+      <div class="en"><p style="font-size:12px;">Digital prototyping and design tools accelerate concept-to-production pipelines.</p></div>
+      <div class="es"><p style="font-size:12px;">Herramientas de prototipado digital aceleran los pipelines de concepto a producción.</p></div>
+    </div>
+    <div class="uc-card">
+      <h3><span class="en">Banking &amp; Finance</span><span class="es">Banca y Finanzas</span></h3>
+      <div class="en"><p style="font-size:12px;">Pattern detection in personal, commercial, and trading activities for fraud prevention.</p></div>
+      <div class="es"><p style="font-size:12px;">Detección de patrones en actividades personales, comerciales y de trading para prevención del fraude.</p></div>
+    </div>
+    <div class="uc-card">
+      <h3><span class="en">Urban &amp; Public Safety</span><span class="es">Urbanismo y Seguridad Pública</span></h3>
+      <div class="en"><p style="font-size:12px;">Video analytics and simulations to create safer cities and better environments.</p></div>
+      <div class="es"><p style="font-size:12px;">Análisis de video y simulaciones para crear ciudades más seguras y mejores entornos.</p></div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- 09 VOCABULARY -->
+  <div class="sec"><span class="sec-num">09</span><span class="sec-title"><span class="en">Key Vocabulary</span><span class="es">Vocabulario Clave</span></span></div>
+  <div class="card" style="padding:0;overflow:hidden;">
+    <table class="vocab-table">
+      <thead>
+        <tr>
+          <th><span class="en">Term</span><span class="es">Término</span></th>
+          <th><span class="en">Definition</span><span class="es">Definición</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="en">Machine Learning</span><span class="es">Aprendizaje Automático</span></td>
+          <td><span class="en">A subset of AI using statistical techniques to build models from observed data; emerged in the 1980s.</span><span class="es">Un subconjunto de IA que usa técnicas estadísticas para construir modelos a partir de datos observados; surgió en la década de 1980.</span></td>
+        </tr>
+        <tr>
+          <td><span class="en">Deep Neural Network (DNN)</span><span class="es">Red Neuronal Profunda (DNN)</span></td>
+          <td><span class="en">Multi-layered networks that automate feature extraction; backbone of modern AI breakthroughs in the 2010s.</span><span class="es">Redes multicapa que automatizan la extracción de características; base de los avances modernos de IA en la década de 2010.</span></td>
+        </tr>
+        <tr>
+          <td><span class="en">Generative AI</span><span class="es">IA Generativa</span></td>
+          <td><span class="en">AI systems capable of generating new content (text, images, code) with near-human quality.</span><span class="es">Sistemas de IA capaces de generar nuevo contenido (texto, imágenes, código) con calidad casi humana.</span></td>
+        </tr>
+        <tr>
+          <td><span class="en">Large Language Model (LLM)</span><span class="es">Modelo de Lenguaje Grande (LLM)</span></td>
+          <td><span class="en">Massive DNN trained on text data; powers chatbots, translation, and content generation.</span><span class="es">DNN masiva entrenada con datos de texto; impulsa chatbots, traducción y generación de contenido.</span></td>
+        </tr>
+        <tr>
+          <td><span class="en">Model Training</span><span class="es">Entrenamiento de Modelos</span></td>
+          <td><span class="en">Exposing a model to large datasets iteratively to learn patterns. The most GPU-intensive AI phase.</span><span class="es">Exponer un modelo a grandes conjuntos de datos iterativamente para aprender patrones. La fase de IA más intensiva en GPU.</span></td>
+        </tr>
+        <tr>
+          <td><span class="en">Inference</span><span class="es">Inferencia</span></td>
+          <td><span class="en">Using a trained model to generate predictions on new, unseen data. Must be fast and scalable.</span><span class="es">Usar un modelo entrenado para generar predicciones sobre datos nuevos no vistos. Debe ser rápida y escalable.</span></td>
+        </tr>
+        <tr>
+          <td><span class="en">Agentic AI</span><span class="es">IA Agéntica</span></td>
+          <td><span class="en">Autonomous AI agents that complete complex tasks independently, forming a $100B+ market by 2030.</span><span class="es">Agentes de IA autónomos que completan tareas complejas independientemente, formando un mercado de más de $100B para 2030.</span></td>
+        </tr>
+        <tr>
+          <td><span class="en">GPU Acceleration</span><span class="es">Aceleración por GPU</span></td>
+          <td><span class="en">Using GPU parallel cores to overcome CPU bottlenecks in AI training and inference workflows.</span><span class="es">Usar núcleos paralelos de GPU para superar los cuellos de botella de CPU en flujos de entrenamiento e inferencia.</span></td>
+        </tr>
+        <tr>
+          <td><span class="en">Feature Extractor</span><span class="es">Extractor de Características</span></td>
+          <td><span class="en">A component that identifies meaningful patterns in data. Originally human-defined; now automated by DNNs.</span><span class="es">Componente que identifica patrones significativos en los datos. Originalmente definido por humanos; ahora automatizado por DNN.</span></td>
+        </tr>
+        <tr>
+          <td>HPC</td>
+          <td><span class="en">High-Performance Computing — massively exceeds regular server performance via distributed GPU compute.</span><span class="es">Computación de Alto Rendimiento — supera enormemente el rendimiento de servidores regulares mediante cómputo GPU distribuido.</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- 10 TAKEAWAYS -->
+  <div class="sec"><span class="sec-num">10</span><span class="sec-title"><span class="en">Summary &amp; Takeaways</span><span class="es">Resumen y Conclusiones</span></span></div>
+  <div class="takeaway">
+    <h3><span class="en">What You Need to Know</span><span class="es">Lo Que Debes Saber</span></h3>
+    <ul>
+      <li><span class="en">AI is a broad field enabling computers to perform <strong>human-level tasks</strong>; ML and deep learning are key subsets.</span><span class="es">La IA es un campo amplio que permite a las computadoras realizar <strong>tareas de nivel humano</strong>; el ML y el aprendizaje profundo son subconjuntos clave.</span></li>
+      <li><span class="en">Deep learning breakthroughs in the <strong>2010s</strong> were enabled by GPUs, large datasets, and better algorithms.</span><span class="es">Los avances del aprendizaje profundo en la <strong>década de 2010</strong> fueron posibles gracias a las GPU, grandes conjuntos de datos y mejores algoritmos.</span></li>
+      <li><span class="en"><strong>Generative AI and LLMs</strong> now power chatbots, content generation, translation, and more.</span><span class="es">La <strong>IA generativa y los LLMs</strong> impulsan ahora chatbots, generación de contenido, traducción y más.</span></li>
+      <li><span class="en"><strong>Agentic AI</strong> is the next wave — autonomous agents that transform enterprises into digital workforces.</span><span class="es">La <strong>IA agéntica</strong> es la próxima ola — agentes autónomos que transforman las empresas en fuerzas de trabajo digitales.</span></li>
+      <li><span class="en">AI delivers measurable ROI: <strong>30–50% cost savings</strong> in finance, <strong>30% satisfaction</strong> in healthcare.</span><span class="es">La IA ofrece un ROI medible: <strong>30–50% de ahorro</strong> en finanzas, <strong>30% de satisfacción</strong> en salud.</span></li>
+      <li><span class="en"><strong>Model training</strong> is the most compute-intensive phase; GPUs reduce training time dramatically.</span><span class="es">El <strong>entrenamiento de modelos</strong> es la fase más intensiva en cómputo; las GPU reducen drásticamente el tiempo de entrenamiento.</span></li>
+      <li><span class="en"><strong>Inference</strong> must be real-time and at scale — GPU acceleration is equally essential here.</span><span class="es">La <strong>inferencia</strong> debe ser en tiempo real y a escala — la aceleración por GPU es igualmente esencial aquí.</span></li>
+      <li><span class="en">A typical AI workflow has <strong>7 steps</strong>: Acquisition → Curation → Pre-training → Customization → Retrieval → Inference → Guardrails.</span><span class="es">Un flujo de IA típico tiene <strong>7 pasos</strong>: Adquisición → Curación → Pre-entrenamiento → Personalización → Recuperación → Inferencia → Barreras.</span></li>
+      <li><span class="en">Key deployment challenges: <strong>complexity, production readiness, infrastructure diversity</strong>.</span><span class="es">Desafíos clave de implementación: <strong>complejidad, preparación para producción, diversidad de infraestructura</strong>.</span></li>
+      <li><span class="en">GPUs can be deployed <strong>on-premises, in the cloud, or in co-location facilities</strong> to support AI workloads.</span><span class="es">Las GPU pueden implementarse <strong>localmente, en la nube o en instalaciones de co-ubicación</strong> para soportar cargas de trabajo de IA.</span></li>
+    </ul>
+  </div>
+
+</div>
+<script>
+function setLang(lang) {
+  document.body.className = lang;
+  document.querySelectorAll('.lang-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.lang === lang); });
+  try { localStorage.setItem('studyLang2', lang); } catch(e){}
+}
+try { var s = localStorage.getItem('studyLang2'); if(s==='es') setLang('es'); } catch(e){}
+</script>
+</body>
+</html>

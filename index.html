@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPU vs GPU — Study Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0a0c10; --surface:#111318; --surface2:#181c24; --border:#1f2533;
+    --cpu:#e05c3a; --gpu:#3ae0b4; --accent:#f0c040; --text:#e8eaf0;
+    --muted:#7a8090; --cpu-bg:rgba(224,92,58,0.08); --gpu-bg:rgba(58,224,180,0.08);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; font-size:15px; line-height:1.6; padding:0 24px 80px; }
+  .page { max-width:960px; margin:0 auto; }
+
+  /* LANGUAGE TOGGLE */
+  .lang-bar { position:sticky; top:0; z-index:200; display:flex; align-items:center; gap:6px; padding:14px 0 16px; background:var(--bg); border-bottom:1px solid var(--border); margin-bottom:40px; }
+  .lang-bar-label { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); margin-right:4px; }
+  .lang-btn { padding:6px 20px; border-radius:4px; border:1px solid var(--border); background:transparent; cursor:pointer; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); transition:all .15s; }
+  .lang-btn.active { background:var(--gpu); color:#0a0c10; border-color:var(--gpu); font-weight:500; }
+  .lang-btn:hover:not(.active) { border-color:var(--gpu); color:var(--gpu); }
+
+  /* LANGUAGE VISIBILITY */
+  .es { display:none; }
+  body.es .en { display:none; }
+  body.es .es { display:block; }
+  body.es span.es, body.es td.es, body.es li.es { display:inline; }
+  body.es span.en, body.es td.en, body.es li.en { display:none; }
+  span.en, span.es { display:inline; }
+
+  /* HEADER */
+  .header { display:flex; align-items:flex-end; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:20px; margin-bottom:48px; gap:16px; flex-wrap:wrap; }
+  .kicker { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--gpu); margin-bottom:6px; }
+  h1.main { font-family:'Bebas Neue',sans-serif; font-size:clamp(40px,7vw,72px); letter-spacing:.04em; line-height:1; color:var(--text); }
+  h1.main .cpu-word { color:var(--cpu); }
+  h1.main .gpu-word { color:var(--gpu); }
+  .header-right { font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); text-align:right; line-height:1.9; }
+
+  /* SECTION LABEL */
+  .section-label { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+  .section-label::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  /* GRIDS */
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .three-col { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+  .four-col { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+  @media(max-width:680px) { .two-col,.three-col,.four-col { grid-template-columns:1fr; } }
+
+  /* CARDS */
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:20px; position:relative; overflow:hidden; }
+  .card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; }
+  .card.cpu::before { background:var(--cpu); }
+  .card.gpu::before { background:var(--gpu); }
+  .card.neutral::before { background:var(--accent); }
+  .card h3 { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:.06em; margin-bottom:12px; }
+  .card.cpu h3 { color:var(--cpu); }
+  .card.gpu h3 { color:var(--gpu); }
+  .card.neutral h3 { color:var(--accent); }
+  .card p { color:var(--muted); font-size:13.5px; line-height:1.65; }
+
+  /* COMPARE TABLE */
+  .compare-table { width:100%; border-collapse:collapse; font-size:13.5px; }
+  .compare-table thead tr { border-bottom:1px solid var(--border); }
+  .compare-table th { padding:10px 16px; text-align:left; font-family:'Bebas Neue',sans-serif; font-size:17px; letter-spacing:.06em; font-weight:400; }
+  .compare-table th.cpu-head { color:var(--cpu); }
+  .compare-table th.gpu-head { color:var(--gpu); }
+  .compare-table th:first-child { color:var(--muted); font-size:10px; letter-spacing:.16em; text-transform:uppercase; font-family:'DM Mono',monospace; }
+  .compare-table td { padding:10px 16px; vertical-align:top; border-bottom:1px solid var(--border); color:var(--muted); line-height:1.55; }
+  .compare-table td:first-child { color:var(--text); font-family:'DM Mono',monospace; font-size:11px; white-space:nowrap; }
+  .compare-table tr:last-child td { border-bottom:none; }
+  .compare-table td.cpu-cell { background:var(--cpu-bg); color:#d0cec8; }
+  .compare-table td.gpu-cell { background:var(--gpu-bg); color:#c8d0ce; }
+
+  /* ANALOGY */
+  .analogy-card { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:20px; display:block; }
+  .analogy-card h3 { font-family:'Bebas Neue',sans-serif; font-size:19px; letter-spacing:.06em; color:var(--accent); margin-bottom:6px; }
+  .analogy-card p { color:var(--muted); font-size:13px; }
+
+  /* PROCESSING VIS */
+  .processing-vis { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:20px; }
+  .vis-title { font-family:'Bebas Neue',sans-serif; font-size:17px; letter-spacing:.06em; margin-bottom:12px; }
+  .cores-display { display:flex; flex-wrap:wrap; gap:5px; margin-top:8px; }
+  .core-dot { border-radius:4px; display:flex; align-items:center; justify-content:center; font-family:'DM Mono',monospace; font-size:8px; font-weight:500; }
+  .core-dot.cpu-core { width:40px; height:40px; background:rgba(224,92,58,0.2); border:1px solid var(--cpu); color:var(--cpu); }
+  .core-dot.gpu-core { width:16px; height:16px; background:rgba(58,224,180,0.18); border:1px solid rgba(58,224,180,0.5); }
+  .core-label { font-size:11px; color:var(--muted); margin-bottom:8px; font-family:'DM Mono',monospace; }
+
+  /* FLOW NODES */
+  .flow-node { background:var(--surface2); border:1px solid var(--border); border-radius:6px; padding:10px 14px; font-size:12px; font-family:'DM Mono',monospace; white-space:nowrap; }
+  .flow-node.gpu-node { border-color:rgba(58,224,180,0.4); color:var(--gpu); }
+  .flow-node.cpu-node { border-color:rgba(224,92,58,0.4); color:var(--cpu); }
+
+  /* PILLS */
+  .pill-grid { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+  .pill { padding:5px 12px; border-radius:999px; font-size:12px; font-family:'DM Mono',monospace; border:1px solid; }
+  .pill.gpu-pill { background:var(--gpu-bg); border-color:rgba(58,224,180,0.3); color:var(--gpu); }
+  .pill.neutral-pill { background:rgba(240,192,64,0.08); border-color:rgba(240,192,64,0.3); color:var(--accent); }
+
+  /* STAT CARDS */
+  .stat-card { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:20px; text-align:center; }
+  .stat-card .stat-num { font-family:'Bebas Neue',sans-serif; font-size:38px; letter-spacing:.04em; line-height:1; margin-bottom:6px; }
+  .stat-card .stat-label { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+
+  /* TERM GRID */
+  .term-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; }
+  .term-card { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:14px 16px; }
+  .term-card .term { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); margin-bottom:5px; }
+  .term-card .definition { font-size:12.5px; color:var(--muted); line-height:1.55; }
+
+  /* TAKEAWAY */
+  .takeaway { background:linear-gradient(135deg,rgba(58,224,180,0.06),rgba(224,92,58,0.06)); border:1px solid var(--border); border-radius:8px; padding:24px 28px; }
+  .takeaway h3 { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:.06em; color:var(--text); margin-bottom:12px; }
+  .takeaway ul { list-style:none; display:flex; flex-direction:column; gap:8px; }
+  .takeaway ul li { font-size:13.5px; color:var(--muted); padding-left:18px; position:relative; }
+  .takeaway ul li::before { content:'▸'; position:absolute; left:0; color:var(--gpu); }
+  .hl { color:var(--text); font-weight:500; }
+
+  .spacer { height:40px; }
+  .spacer-sm { height:20px; }
+</style>
+</head>
+<body class="en">
+<div class="page">
+
+  <!-- LANGUAGE TOGGLE -->
+  <div class="lang-bar">
+    <span class="lang-bar-label">Language:</span>
+    <button class="lang-btn active" data-lang="en" onclick="setLang('en')">English</button>
+    <button class="lang-btn" data-lang="es" onclick="setLang('es')">Español</button>
+  </div>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <div class="kicker">
+        <span class="en">Enterprise Computing · Study Guide</span>
+        <span class="es">Computación Empresarial · Guía de Estudio</span>
+      </div>
+      <h1 class="main"><span class="cpu-word">CPU</span> vs <span class="gpu-word">GPU</span></h1>
+    </div>
+    <div class="header-right">
+      <span class="en">Processing Architecture<br>Enterprise Applications<br>AI &amp; HPC Workloads<br><span style="color:var(--text)">Authored by Julio Diaz</span></span>
+      <span class="es">Arquitectura de Procesamiento<br>Aplicaciones Empresariales<br>Cargas de IA y HPC<br><span style="color:var(--text)">Autor: Julio Diaz</span></span>
+    </div>
+  </div>
+
+  <!-- 01 DEFINITIONS -->
+  <div class="section-label">01 — <span class="en">Core Definitions</span><span class="es">Definiciones Principales</span></div>
+  <div class="two-col">
+    <div class="card cpu">
+      <h3><span class="en">CPU — Central Processing Unit</span><span class="es">CPU — Unidad Central de Procesamiento</span></h3>
+      <div class="en"><p>The brain of the computer. Responsible for executing a <span style="color:var(--text)">wide range of complex calculations</span> using <span style="color:var(--cpu)">serial processing</span> — one instruction at a time. Built with a small number of powerful cores optimized for sequential logic.</p></div>
+      <div class="es"><p>El cerebro de la computadora. Responsable de ejecutar una <span style="color:var(--text)">amplia gama de cálculos complejos</span> mediante el <span style="color:var(--cpu)">procesamiento en serie</span> — una instrucción a la vez. Construida con pocos núcleos potentes optimizados para lógica secuencial.</p></div>
+      <div style="margin-top:14px;">
+        <div class="core-label"><span class="en">Typical core count: 4–64 powerful cores</span><span class="es">Cantidad típica: 4–64 núcleos potentes</span></div>
+        <div class="cores-display">
+          <div class="core-dot cpu-core">C1</div><div class="core-dot cpu-core">C2</div><div class="core-dot cpu-core">C3</div><div class="core-dot cpu-core">C4</div>
+        </div>
+      </div>
+    </div>
+    <div class="card gpu">
+      <h3><span class="en">GPU — Graphics Processing Unit</span><span class="es">GPU — Unidad de Procesamiento Gráfico</span></h3>
+      <div class="en"><p>Hardware specifically designed for rapid calculations. Built to carry out simple operations at high speed, featuring <span style="color:var(--gpu)">thousands of lightweight cores</span> working in parallel. Originally for graphics; now essential for AI &amp; HPC.</p></div>
+      <div class="es"><p>Hardware diseñado específicamente para cálculos rápidos. Construida para operaciones simples a alta velocidad, con <span style="color:var(--gpu)">miles de núcleos ligeros</span> trabajando en paralelo. Originalmente para gráficos; ahora esencial para IA y HPC.</p></div>
+      <div style="margin-top:14px;">
+        <div class="core-label"><span class="en">Typical core count: 1,000s of lightweight cores</span><span class="es">Cantidad típica: Miles de núcleos ligeros</span></div>
+        <div class="cores-display" style="max-height:60px;overflow:hidden;">
+          <div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div><div class="core-dot gpu-core"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- 02 PROCESSING TYPES -->
+  <div class="section-label">02 — <span class="en">Processing Types</span><span class="es">Tipos de Procesamiento</span></div>
+  <div class="two-col">
+    <div class="processing-vis">
+      <div class="vis-title" style="color:var(--cpu)"><span class="en">Serial Processing (CPU)</span><span class="es">Procesamiento en Serie (CPU)</span></div>
+      <div class="en"><p style="font-size:13px;color:var(--muted);margin-bottom:12px;">One instruction at a time. Queue grows when volume is high.</p></div>
+      <div class="es"><p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Una instrucción a la vez. La cola crece cuando el volumen es alto.</p></div>
+      <div style="display:flex;flex-direction:column;gap:4px;">
+        <div class="flow-node cpu-node" style="width:145px"><span class="en">Task 1 ▶ Done</span><span class="es">Tarea 1 ▶ Lista</span></div>
+        <div class="flow-node" style="border-style:dashed;color:var(--muted);width:145px"><span class="en">Task 2 ⏳ Wait</span><span class="es">Tarea 2 ⏳ Espera</span></div>
+        <div class="flow-node" style="border-style:dashed;color:var(--muted);width:145px"><span class="en">Task 3 ⏳ Wait</span><span class="es">Tarea 3 ⏳ Espera</span></div>
+        <div class="flow-node" style="border-style:dashed;color:var(--muted);width:145px"><span class="en">Task 4 ⏳ Wait</span><span class="es">Tarea 4 ⏳ Espera</span></div>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin-top:12px;font-family:'DM Mono',monospace;"><span class="en">→ Bottleneck at high data volume</span><span class="es">→ Cuello de botella con alto volumen</span></p>
+    </div>
+    <div class="processing-vis">
+      <div class="vis-title" style="color:var(--gpu)"><span class="en">Parallel Processing (GPU)</span><span class="es">Procesamiento Paralelo (GPU)</span></div>
+      <div class="en"><p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Thousands of cores each handle a portion of data simultaneously.</p></div>
+      <div class="es"><p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Miles de núcleos procesan cada uno una porción de datos simultáneamente.</p></div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;">
+        <div class="flow-node gpu-node" style="text-align:center;padding:8px 4px;font-size:11px;">T1 ▶</div><div class="flow-node gpu-node" style="text-align:center;padding:8px 4px;font-size:11px;">T2 ▶</div><div class="flow-node gpu-node" style="text-align:center;padding:8px 4px;font-size:11px;">T3 ▶</div><div class="flow-node gpu-node" style="text-align:center;padding:8px 4px;font-size:11px;">T4 ▶</div>
+        <div class="flow-node gpu-node" style="text-align:center;padding:8px 4px;font-size:11px;">T5 ▶</div><div class="flow-node gpu-node" style="text-align:center;padding:8px 4px;font-size:11px;">T6 ▶</div><div class="flow-node gpu-node" style="text-align:center;padding:8px 4px;font-size:11px;">T7 ▶</div><div class="flow-node gpu-node" style="text-align:center;padding:8px 4px;font-size:11px;">T8 ▶</div>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin-top:12px;font-family:'DM Mono',monospace;"><span class="en">→ Scales to massive data sets</span><span class="es">→ Escala a conjuntos de datos masivos</span></p>
+    </div>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- 03 ANALOGY -->
+  <div class="section-label">03 — <span class="en">The Pizza Delivery Analogy</span><span class="es">La Analogía de la Pizzería</span></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
+    <div class="analogy-card">
+      <div style="font-size:36px;margin-bottom:10px;">🚗</div>
+      <h3><span class="en">1 Driver = Serial CPU</span><span class="es">1 Conductor = CPU en Serie</span></h3>
+      <div class="en"><p>One driver, all orders. Gets overwhelmed fast. New orders pile up. Customers wait longer and receive cold results.</p></div>
+      <div class="es"><p>Un conductor, todos los pedidos. Se satura rápido. Los pedidos se acumulan. Los clientes esperan más y reciben resultados fríos.</p></div>
+    </div>
+    <div class="analogy-card">
+      <div style="font-size:36px;margin-bottom:10px;">🚛🚛🚛</div>
+      <h3><span class="en">Multi-Truck = Multi-Core CPU</span><span class="es">Multi-Camión = CPU Multi-Núcleo</span></h3>
+      <div class="en"><p>More drivers help but memory bandwidth creates a bottleneck. Complex to coordinate. Doesn't scale well beyond ~4 cores.</p></div>
+      <div class="es"><p>Más conductores ayudan, pero el ancho de banda de memoria genera un cuello de botella. Complejo de coordinar. No escala bien más allá de ~4 núcleos.</p></div>
+    </div>
+    <div class="analogy-card" style="border-color:rgba(58,224,180,0.3);">
+      <div style="font-size:36px;margin-bottom:10px;">🛵🛵🛵🛵🛵🛵</div>
+      <h3><span class="en">Dozens of Scooters = GPU</span><span class="es">Docenas de Scooters = GPU</span></h3>
+      <div class="en"><p>Many scooters handle many small orders in parallel. Trucks handle complex catering. <span style="color:var(--gpu)">Together they satisfy all customers.</span></p></div>
+      <div class="es"><p>Muchos scooters manejan muchos pedidos pequeños en paralelo. Los camiones gestionan pedidos complejos. <span style="color:var(--gpu)">Juntos satisfacen a todos los clientes.</span></p></div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- 04 COMPARISON TABLE -->
+  <div class="section-label">04 — <span class="en">Head-to-Head Comparison</span><span class="es">Comparación Directa</span></div>
+  <div class="card neutral" style="padding:0;overflow:hidden;">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th style="width:160px;"><span class="en">Attribute</span><span class="es">Atributo</span></th>
+          <th class="cpu-head">CPU</th>
+          <th class="gpu-head">GPU</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="en">Core Count</span><span class="es">Cant. de Núcleos</span></td>
+          <td class="cpu-cell"><span class="en">Few powerful cores (typically 4–64)</span><span class="es">Pocos núcleos potentes (típicamente 4–64)</span></td>
+          <td class="gpu-cell"><span class="en">Thousands of lightweight cores</span><span class="es">Miles de núcleos ligeros</span></td>
+        </tr>
+        <tr>
+          <td><span class="en">Processing Type</span><span class="es">Tipo de Procesamiento</span></td>
+          <td class="cpu-cell"><span class="en">Serial — one task at a time</span><span class="es">Serie — una tarea a la vez</span></td>
+          <td class="gpu-cell"><span class="en">Parallel — many tasks simultaneously</span><span class="es">Paralelo — muchas tareas a la vez</span></td>
+        </tr>
+        <tr>
+          <td><span class="en">Task Complexity</span><span class="es">Complejidad de Tareas</span></td>
+          <td class="cpu-cell"><span class="en">Complex, varied instructions</span><span class="es">Instrucciones complejas y variadas</span></td>
+          <td class="gpu-cell"><span class="en">Simple, repetitive calculations</span><span class="es">Cálculos simples y repetitivos</span></td>
+        </tr>
+        <tr>
+          <td><span class="en">Scalability</span><span class="es">Escalabilidad</span></td>
+          <td class="cpu-cell"><span class="en">Memory bottleneck above ~4 cores</span><span class="es">Cuello de botella de memoria sobre ~4 núcleos</span></td>
+          <td class="gpu-cell"><span class="en">Scales efficiently to massive data</span><span class="es">Escala eficientemente a datos masivos</span></td>
+        </tr>
+        <tr>
+          <td><span class="en">Best For</span><span class="es">Mejor Para</span></td>
+          <td class="cpu-cell"><span class="en">OS tasks, logic, complex control flow</span><span class="es">Tareas del SO, lógica, flujo de control complejo</span></td>
+          <td class="gpu-cell"><span class="en">AI training, graphics, HPC, analytics</span><span class="es">Entrenamiento IA, gráficos, HPC, analítica</span></td>
+        </tr>
+        <tr>
+          <td><span class="en">Design Origin</span><span class="es">Origen del Diseño</span></td>
+          <td class="cpu-cell"><span class="en">General-purpose computing</span><span class="es">Computación de propósito general</span></td>
+          <td class="gpu-cell"><span class="en">Graphics rendering; now general HPC</span><span class="es">Renderizado gráfico; ahora HPC general</span></td>
+        </tr>
+        <tr>
+          <td><span class="en">Replace the Other?</span><span class="es">¿Reemplaza al Otro?</span></td>
+          <td class="cpu-cell" colspan="2" style="text-align:center;color:var(--accent);font-weight:500;">
+            <span class="en">No — they are complementary. Best performance comes from using both together.</span>
+            <span class="es">No — son complementarias. El mejor rendimiento se logra usándolas juntas.</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- 05 USE CASES -->
+  <div class="section-label">05 — <span class="en">Enterprise GPU Use Cases</span><span class="es">Casos de Uso Empresarial de GPU</span></div>
+  <div class="three-col">
+    <div class="card gpu">
+      <h3><span class="en">AI &amp; Machine Learning</span><span class="es">IA y Aprendizaje Automático</span></h3>
+      <div class="en"><p>Training and inference for NLP and recommendation systems. CPUs alone cannot provide the required compute power.</p></div>
+      <div class="es"><p>Entrenamiento e inferencia para PLN y sistemas de recomendación. Las CPU solas no pueden proveer la potencia requerida.</p></div>
+      <div class="pill-grid">
+        <span class="pill gpu-pill"><span class="en">NLP</span><span class="es">PLN</span></span>
+        <span class="pill gpu-pill"><span class="en">Inference</span><span class="es">Inferencia</span></span>
+        <span class="pill gpu-pill"><span class="en">Training</span><span class="es">Entrenamiento</span></span>
+      </div>
+    </div>
+    <div class="card gpu">
+      <h3><span class="en">High-Performance Computing</span><span class="es">Computación de Alto Rendimiento</span></h3>
+      <div class="en"><p>Scientific workloads requiring far more power than regular servers. Distributes compute efficiently across clusters.</p></div>
+      <div class="es"><p>Cargas de trabajo científicas que requieren mucha más potencia que servidores regulares. Distribuye el cómputo eficientemente.</p></div>
+      <div class="pill-grid">
+        <span class="pill gpu-pill"><span class="en">Simulation</span><span class="es">Simulación</span></span>
+        <span class="pill gpu-pill"><span class="en">Modeling</span><span class="es">Modelado</span></span>
+        <span class="pill gpu-pill"><span class="en">Research</span><span class="es">Investigación</span></span>
+      </div>
+    </div>
+    <div class="card gpu">
+      <h3><span class="en">Visualization &amp; Graphics</span><span class="es">Visualización y Gráficos</span></h3>
+      <div class="en"><p>Graphics rendering, virtual desktops, animation, and CAD designs that depend on GPU visual processing power.</p></div>
+      <div class="es"><p>Renderizado gráfico, escritorios virtuales, animación y diseños CAD que dependen de la potencia visual de la GPU.</p></div>
+      <div class="pill-grid">
+        <span class="pill gpu-pill"><span class="en">Rendering</span><span class="es">Renderizado</span></span>
+        <span class="pill gpu-pill">VDI</span>
+        <span class="pill gpu-pill"><span class="en">Animation</span><span class="es">Animación</span></span>
+      </div>
+    </div>
+  </div>
+  <div class="spacer-sm"></div>
+  <div class="three-col">
+    <div class="card neutral">
+      <h3><span class="en">Data Center</span><span class="es">Centro de Datos</span></h3>
+      <div class="en"><p>Exceptional parallel processing for AI model training and inference at scale in centralized infrastructure.</p></div>
+      <div class="es"><p>Procesamiento paralelo excepcional para entrenamiento e inferencia de modelos de IA a escala en infraestructura centralizada.</p></div>
+      <div class="pill-grid">
+        <span class="pill neutral-pill"><span class="en">AI Models</span><span class="es">Modelos de IA</span></span>
+        <span class="pill neutral-pill"><span class="en">Scale-out</span><span class="es">Escalado</span></span>
+      </div>
+    </div>
+    <div class="card neutral">
+      <h3><span class="en">Edge Computing</span><span class="es">Computación en el Borde</span></h3>
+      <div class="en"><p>Compute outside centralized data centers for real-time tasks requiring immediate response.</p></div>
+      <div class="es"><p>Cómputo fuera de los centros de datos centralizados para tareas en tiempo real que requieren respuesta inmediata.</p></div>
+      <div class="pill-grid">
+        <span class="pill neutral-pill"><span class="en">Predictive Maint.</span><span class="es">Mant. Predictivo</span></span>
+        <span class="pill neutral-pill"><span class="en">Real-time AI</span><span class="es">IA en Tiempo Real</span></span>
+      </div>
+    </div>
+    <div class="card neutral">
+      <h3><span class="en">Agentic AI (2030+)</span><span class="es">IA Agéntica (2030+)</span></h3>
+      <div class="en"><p>AI agents use data to enhance problem solving. By 2030, 25% of all software will incorporate agentic workflows.</p></div>
+      <div class="es"><p>Los agentes de IA usan datos para mejorar la resolución de problemas. Para 2030, el 25% del software incorporará flujos agénticos.</p></div>
+      <div class="pill-grid">
+        <span class="pill neutral-pill"><span class="en">Autonomous</span><span class="es">Autónomo</span></span>
+        <span class="pill neutral-pill"><span class="en">Workflow AI</span><span class="es">IA de Flujo</span></span>
+      </div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- 06 KEY NUMBERS -->
+  <div class="section-label">06 — <span class="en">Key Numbers to Know</span><span class="es">Números Clave a Recordar</span></div>
+  <div class="four-col">
+    <div class="stat-card">
+      <div class="stat-num" style="color:var(--gpu)">1000s</div>
+      <div class="stat-label"><span class="en">GPU Cores<br>vs ~4–64 CPU</span><span class="es">Núcleos GPU<br>vs ~4–64 CPU</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" style="color:var(--accent)">25%</div>
+      <div class="stat-label"><span class="en">All software with<br>agentic AI by 2030</span><span class="es">Todo el software con<br>IA agéntica para 2030</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" style="color:var(--accent)">33%</div>
+      <div class="stat-label"><span class="en">Enterprise software<br>w/ agentic workflows</span><span class="es">Software empresarial<br>con flujos agénticos</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" style="color:var(--cpu)">~4</div>
+      <div class="stat-label"><span class="en">CPU cores before<br>memory bottleneck</span><span class="es">Núcleos CPU antes<br>del cuello de botella</span></div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- 07 VOCABULARY -->
+  <div class="section-label">07 — <span class="en">Key Vocabulary</span><span class="es">Vocabulario Clave</span></div>
+  <div class="term-grid">
+    <div class="term-card">
+      <div class="term"><span class="en">Serial Processing</span><span class="es">Procesamiento en Serie</span></div>
+      <div class="definition"><span class="en">Executing one instruction at a time. CPU's native mode. Slow for large data volumes.</span><span class="es">Ejecutar una instrucción a la vez. El modo nativo de la CPU. Lento para grandes volúmenes de datos.</span></div>
+    </div>
+    <div class="term-card">
+      <div class="term"><span class="en">Parallel Processing</span><span class="es">Procesamiento Paralelo</span></div>
+      <div class="definition"><span class="en">Multiple instructions executed simultaneously across many cores.</span><span class="es">Múltiples instrucciones ejecutadas simultáneamente en muchos núcleos.</span></div>
+    </div>
+    <div class="term-card">
+      <div class="term"><span class="en">Core</span><span class="es">Núcleo</span></div>
+      <div class="definition"><span class="en">The execution engine inside a CPU or GPU that performs mathematical calculations.</span><span class="es">El motor de ejecución dentro de una CPU o GPU que realiza cálculos matemáticos.</span></div>
+    </div>
+    <div class="term-card">
+      <div class="term"><span class="en">Memory Bandwidth</span><span class="es">Ancho de Banda de Memoria</span></div>
+      <div class="definition"><span class="en">The bottleneck limiting multi-core CPU scaling beyond ~4 cores.</span><span class="es">El cuello de botella que limita el escalado multi-núcleo más allá de ~4 núcleos.</span></div>
+    </div>
+    <div class="term-card">
+      <div class="term">HPC</div>
+      <div class="definition"><span class="en">High-Performance Computing — far exceeds regular server performance via distributed GPU compute.</span><span class="es">Computación de Alto Rendimiento — supera enormemente el rendimiento de servidores regulares mediante cómputo GPU distribuido.</span></div>
+    </div>
+    <div class="term-card">
+      <div class="term"><span class="en">GPU Acceleration</span><span class="es">Aceleración por GPU</span></div>
+      <div class="definition"><span class="en">Using GPU's parallel cores to speed up specific workloads alongside the CPU.</span><span class="es">Usar los núcleos paralelos de la GPU para acelerar cargas de trabajo específicas junto con la CPU.</span></div>
+    </div>
+    <div class="term-card">
+      <div class="term"><span class="en">Inference</span><span class="es">Inferencia</span></div>
+      <div class="definition"><span class="en">Running a trained AI model to produce predictions — a primary GPU enterprise workload.</span><span class="es">Ejecutar un modelo de IA entrenado para producir predicciones — una carga de trabajo empresarial principal de GPU.</span></div>
+    </div>
+    <div class="term-card">
+      <div class="term"><span class="en">Agentic AI</span><span class="es">IA Agéntica</span></div>
+      <div class="definition"><span class="en">AI agents that autonomously use data to solve problems and accelerate work.</span><span class="es">Agentes de IA que usan datos de forma autónoma para resolver problemas y acelerar el trabajo.</span></div>
+    </div>
+    <div class="term-card">
+      <div class="term"><span class="en">Enterprise</span><span class="es">Empresa</span></div>
+      <div class="definition"><span class="en">Organizations/businesses (not consumer-level). Distinguishes from personal use.</span><span class="es">Organizaciones y negocios (no nivel consumidor). Distingue del uso personal.</span></div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- 08 TAKEAWAYS -->
+  <div class="section-label">08 — <span class="en">Summary &amp; Takeaways</span><span class="es">Resumen y Conclusiones</span></div>
+  <div class="takeaway">
+    <h3><span class="en">What You Need to Know</span><span class="es">Lo Que Debes Saber</span></h3>
+    <ul>
+      <li><span class="en">The <span class="hl">CPU</span> excels at serial processing of complex, varied instructions — it is the brain of the computer.</span><span class="es">La <span class="hl">CPU</span> destaca en el procesamiento en serie de instrucciones complejas y variadas — es el cerebro de la computadora.</span></li>
+      <li><span class="en">The <span class="hl">GPU</span> is purpose-built for simple, repetitive math at high speed using thousands of parallel cores.</span><span class="es">La <span class="hl">GPU</span> está diseñada para matemáticas simples y repetitivas a alta velocidad usando miles de núcleos paralelos.</span></li>
+      <li><span class="en"><span class="hl">GPUs do not replace CPUs</span> — the greatest performance gains come when both work together.</span><span class="es"><span class="hl">Las GPU no reemplazan a las CPU</span> — las mayores ganancias de rendimiento se logran cuando ambas trabajan juntas.</span></li>
+      <li><span class="en">Multi-core CPU parallelism hits a <span class="hl">memory bandwidth bottleneck</span> beyond ~4 cores and is complex to program.</span><span class="es">El paralelismo multi-núcleo de CPU choca con un <span class="hl">cuello de botella de ancho de banda</span> más allá de ~4 núcleos y es complejo de programar.</span></li>
+      <li><span class="en">Enterprise GPU workloads span <span class="hl">AI/ML, HPC, visualization, edge computing, and data centers</span>.</span><span class="es">Las cargas empresariales de GPU abarcan <span class="hl">IA/ML, HPC, visualización, computación en el borde y centros de datos</span>.</span></li>
+      <li><span class="en">By 2030, <span class="hl">25% of all software</span> and 33% of enterprise software will incorporate agentic AI workflows.</span><span class="es">Para 2030, el <span class="hl">25% de todo el software</span> y el 33% del software empresarial incorporarán flujos de trabajo de IA agéntica.</span></li>
+      <li><span class="en">Future data centers will combine <span class="hl">CPU + GPU</span> with both on-premises and cloud architectures.</span><span class="es">Los centros de datos del futuro combinarán <span class="hl">CPU + GPU</span> con arquitecturas locales y en la nube.</span></li>
+    </ul>
+  </div>
+
+</div>
+<script>
+function setLang(lang) {
+  document.body.className = lang;
+  document.querySelectorAll('.lang-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.lang === lang); });
+  try { localStorage.setItem('studyLang1', lang); } catch(e){}
+}
+try { var s = localStorage.getItem('studyLang1'); if(s==='es') setLang('es'); } catch(e){}
+</script>
+</body>
+</html>
