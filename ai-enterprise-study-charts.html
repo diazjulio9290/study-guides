@@ -15,10 +15,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg:#f4f1eb; --surface:#faf8f4; --surface2:#edeae2; --border:#d8d3c8; --border2:#c8c2b5;
-    --ink:#1a1814; --muted:#7a7060; --ai:#1a3a8f; --ai-light:#dde6ff;
-    --train:#8f1a2a; --train-light:#ffdde0; --gpu:#1a6e3a; --gpu-light:#ddfaeb;
-    --accent:#c47a1a; --accent-light:#fff3d6;
+    --bg:#0a0c10; --surface:#111318; --surface2:#181c24; --border:#1f2533; --border2:#2a3040;
+    --ink:#e8eaf0; --muted:#7a8090; --ai:#4a7fff; --ai-light:rgba(74,127,255,0.1);
+    --train:#e05c5c; --train-light:rgba(224,92,92,0.1); --gpu:#3ae0b4; --gpu-light:rgba(58,224,180,0.1);
+    --accent:#f0c040; --accent-light:rgba(240,192,64,0.1);
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   body { background:var(--bg); color:var(--ink); font-family:'IBM Plex Sans',sans-serif; font-size:14px; line-height:1.65; padding:40px 28px 80px; }
@@ -29,7 +29,7 @@
   .back-link:hover { color:var(--ai); }
 
   /* HEADER */
-  .header { display:grid; grid-template-columns:1fr auto; align-items:end; border-bottom:3px solid var(--ink); padding-bottom:18px; margin-bottom:52px; gap:20px; }
+  .header { display:grid; grid-template-columns:1fr auto; align-items:end; border-bottom:1px solid var(--border); padding-bottom:18px; margin-bottom:52px; gap:20px; }
   .kicker { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.22em; text-transform:uppercase; color:var(--ai); margin-bottom:8px; }
   h1.main { font-family:'Syne',sans-serif; font-size:clamp(38px,6vw,68px); font-weight:800; line-height:.95; letter-spacing:-.02em; color:var(--ink); }
   h1.main em { font-style:normal; color:var(--ai); }
@@ -43,7 +43,7 @@
 
   /* CARDS */
   .card { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:20px 22px; }
-  .card h3 { font-family:'Syne',sans-serif; font-size:15px; font-weight:700; margin-bottom:8px; }
+  .card h3 { font-family:'Syne',sans-serif; font-size:15px; font-weight:700; margin-bottom:8px; color:var(--ink); }
   .card p { color:var(--muted); font-size:13px; line-height:1.6; }
   .card-ai { border-left:3px solid var(--ai); background:var(--ai-light); }
   .card-ai h3 { color:var(--ai); }
@@ -81,7 +81,7 @@
   .pipe-num { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:.12em; color:var(--muted); margin-bottom:5px; }
   .pipe-name { font-family:'Syne',sans-serif; font-size:12px; font-weight:700; color:var(--ink); margin-bottom:4px; line-height:1.2; }
   .pipe-desc { font-size:11px; color:var(--muted); line-height:1.4; }
-  .pipe-step.gpu-step { background:var(--gpu-light); border-color:var(--gpu); }
+  .pipe-step.gpu-step { background:var(--gpu-light); border-color:rgba(58,224,180,.35); }
   .pipe-step.gpu-step .pipe-name { color:var(--gpu); }
 
   /* STATS */
@@ -102,7 +102,7 @@
   .compare-vs { display:flex; align-items:center; justify-content:center; background:var(--surface2); border-left:1px solid var(--border); border-right:1px solid var(--border); font-family:'Syne',sans-serif; font-size:13px; font-weight:800; color:var(--muted); }
   .compare-side ul { list-style:none; display:flex; flex-direction:column; gap:6px; }
   .compare-side ul li { font-size:12.5px; color:var(--muted); padding-left:14px; position:relative; }
-  .compare-side ul li::before { content:'–'; position:absolute; left:0; color:var(--border2); }
+  .compare-side ul li::before { content:'–'; position:absolute; left:0; color:var(--muted); }
 
   /* CHALLENGE */
   .challenge-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
@@ -114,9 +114,9 @@
 
   /* PILLS */
   .pill { display:inline-block; padding:4px 11px; border-radius:3px; font-family:'IBM Plex Mono',monospace; font-size:11px; border:1px solid; margin:3px 3px 0 0; }
-  .pill-ai { background:var(--ai-light); color:var(--ai); border-color:rgba(26,58,143,.2); }
-  .pill-gpu { background:var(--gpu-light); color:var(--gpu); border-color:rgba(26,110,58,.2); }
-  .pill-acc { background:var(--accent-light); color:var(--accent); border-color:rgba(196,122,26,.2); }
+  .pill-ai { background:var(--ai-light); color:var(--ai); border-color:rgba(74,127,255,.25); }
+  .pill-gpu { background:var(--gpu-light); color:var(--gpu); border-color:rgba(58,224,180,.25); }
+  .pill-acc { background:var(--accent-light); color:var(--accent); border-color:rgba(240,192,64,.25); }
 
   /* BENEFITS */
   .benefit-row { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
@@ -128,37 +128,37 @@
 
   /* VOCAB TABLE */
   .vocab-table { width:100%; border-collapse:collapse; font-size:13px; }
-  .vocab-table thead tr { border-bottom:2px solid var(--ink); }
+  .vocab-table thead tr { border-bottom:1px solid var(--border); }
   .vocab-table th { padding:8px 14px; text-align:left; font-family:'Syne',sans-serif; font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
   .vocab-table td { padding:9px 14px; border-bottom:1px solid var(--border); vertical-align:top; }
   .vocab-table tr:last-child td { border-bottom:none; }
 
   /* GUIDE FOOTER */
-  .guide-footer { margin-top:60px; padding-top:24px; border-top:2px solid var(--ink); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; }
+  .guide-footer { margin-top:60px; padding-top:24px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; }
   .guide-footer-center { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
-  .guide-nav-link { display:inline-flex; align-items:center; gap:8px; font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; text-decoration:none; transition:color .15s, gap .2s; padding:8px 14px; border:1px solid var(--border2); border-radius:4px; color:var(--muted); background:var(--surface); }
-  .guide-nav-link:hover { color:var(--ink); border-color:var(--ink); }
+  .guide-nav-link { display:inline-flex; align-items:center; gap:8px; font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; text-decoration:none; transition:color .15s, gap .2s; padding:8px 14px; border:1px solid var(--border); border-radius:4px; color:var(--muted); background:var(--surface); }
+  .guide-nav-link:hover { color:var(--ink); border-color:var(--muted); }
   .guide-nav-link.prev:hover { gap:14px; }
-  .guide-nav-link.next { color:var(--ai); border-color:rgba(26,58,143,.25); background:var(--ai-light); }
+  .guide-nav-link.next { color:var(--ai); border-color:rgba(74,127,255,.3); background:rgba(74,127,255,.06); }
   .guide-nav-link.next:hover { border-color:var(--ai); gap:14px; }
   .vocab-table td:first-child { font-family:'IBM Plex Mono',monospace; font-size:11.5px; font-weight:500; color:var(--ai); white-space:nowrap; width:220px; }
   .vocab-table td:last-child { color:var(--muted); }
 
   /* GOALS */
-  .goals { background:var(--ai-light); border:1px solid rgba(26,58,143,.15); border-radius:6px; padding:20px 24px; }
+  .goals { background:rgba(74,127,255,0.07); border:1px solid rgba(74,127,255,.2); border-radius:6px; padding:20px 24px; }
   .goals h3 { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--ai); margin-bottom:12px; }
   .goals ul { list-style:none; display:flex; flex-direction:column; gap:7px; }
   .goals ul li { font-size:13px; color:var(--muted); padding-left:18px; position:relative; }
   .goals ul li::before { content:'✓'; position:absolute; left:0; color:var(--ai); font-size:11px; top:1px; }
 
   /* TAKEAWAY */
-  .takeaway { background:var(--ink); border-radius:6px; padding:28px 32px; color:#e8e4da; }
-  .takeaway h3 { font-family:'Syne',sans-serif; font-size:20px; font-weight:800; letter-spacing:-.01em; margin-bottom:14px; color:#fff; }
+  .takeaway { background:var(--surface2); border:1px solid var(--border); border-radius:6px; padding:28px 32px; }
+  .takeaway h3 { font-family:'Syne',sans-serif; font-size:20px; font-weight:800; letter-spacing:-.01em; margin-bottom:14px; color:var(--ink); }
   .takeaway ul { list-style:none; display:grid; grid-template-columns:1fr 1fr; gap:8px 24px; }
   @media(max-width:600px) { .takeaway ul { grid-template-columns:1fr; } }
-  .takeaway ul li { font-size:13px; color:#a8a49a; padding-left:16px; position:relative; line-height:1.55; }
-  .takeaway ul li::before { content:'▸'; position:absolute; left:0; color:#4aad72; }
-  .takeaway ul li strong { color:#e8e4da; font-weight:500; }
+  .takeaway ul li { font-size:13px; color:var(--muted); padding-left:16px; position:relative; line-height:1.55; }
+  .takeaway ul li::before { content:'▸'; position:absolute; left:0; color:var(--gpu); }
+  .takeaway ul li strong { color:var(--ink); font-weight:500; }
 
   .uc-card { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:16px 18px; }
   .uc-card h3 { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; margin-bottom:6px; color:var(--ai); }
@@ -181,7 +181,7 @@
       GPU-Accelerated Workflows<br>
       Training vs. Inference<br>
       Market Solutions<br>
-      <span style="color:var(--ink)">Authored by Julio Diaz</span>
+      <span style="color:var(--gpu)">Authored by Julio Diaz</span>
     </div>
   </div>
 
@@ -320,7 +320,7 @@
     <div class="pipe-step"><div class="pipe-num">STEP 07</div><div class="pipe-name">Guardrails</div><div class="pipe-desc">Safety measures for relevance &amp; appropriateness</div></div>
   </div>
   <p style="font-size:11px;color:var(--muted);margin-top:8px;font-family:'IBM Plex Mono',monospace;">
-    <span style="background:var(--gpu-light);color:var(--gpu);border:1px solid rgba(26,110,58,.2);padding:1px 6px;border-radius:3px;">■ GPU-Accelerated Steps</span>
+    <span style="background:var(--gpu-light);color:var(--gpu);border:1px solid rgba(58,224,180,.25);padding:1px 6px;border-radius:3px;">■ GPU-Accelerated Steps</span>
   </p>
   <div class="spacer"></div>
 
